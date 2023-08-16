@@ -1,4 +1,4 @@
 mod api;
-mod router;
+mod routers;
 
-pub use router::router;
+pub use routers::router;
