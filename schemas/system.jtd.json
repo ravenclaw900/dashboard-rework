@@ -1,7 +1,0 @@
-{
-  "properties": {
-    "cpu": {
-      "type": "float32"
-    }
-  }
-}

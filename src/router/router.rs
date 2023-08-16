@@ -3,7 +3,7 @@ use crate::sysdata;
 use axum::{routing::get, Router};
 
 fn api_router() -> Router {
-    let tx = sysdata::system_task();
+    let tx = sysdata::spawn_system_task();
     Router::new().route("/cpu", get(api::system)).with_state(tx)
 }
 
