@@ -1,8 +1,25 @@
-import { createResource, type Component, onCleanup, Switch, Match } from "solid-js";
+import { createResource, onCleanup, Switch, Match } from "solid-js";
 import wretch from "wretch";
 import { System } from "./types";
 
-const App: Component = () => {
+function DisplayBar(props: { message: string; percent: number; color: string; name: string }) {
+    return (
+        <>
+            <p class="text-lg">
+                {props.name} usage: {props.message}
+            </p>
+            <div class="h-6 bg-gray-400 w-full rounded">
+                <div
+                    class="h-full transition-width duration-500 rounded"
+                    classList={{ [props.color]: true }}
+                    style={{ width: `${props.percent}%` }}
+                />
+            </div>
+        </>
+    );
+}
+
+function App() {
     const [sysdata, { refetch: refetchSystem }] = createResource<System>(() =>
         wretch("http://localhost:5252/api/system").get().json(),
     );
@@ -18,43 +35,34 @@ const App: Component = () => {
                 <Match when={sysdata()}>
                     {(sysdata) => (
                         <>
-                            <p class="text-lg">CPU usage {sysdata().cpu.toFixed(2)}%</p>
-                            <div class="h-6 bg-gray-400 w-full rounded">
-                                <div
-                                    class="bg-green-500 h-full transition-width duration-500 rounded"
-                                    style={{ width: `${sysdata().cpu}%` }}
-                                />
-                            </div>
-                            <p class="text-lg">
-                                RAM usage:{" "}
-                                {`${sysdata().ram.used.num} ${sysdata().ram.used.suffix} / ${
-                                    sysdata().ram.total.num
-                                } ${sysdata().ram.total.suffix}`}
-                            </p>
-                            <div class="h-6 bg-gray-400 w-full rounded">
-                                <div
-                                    class="bg-red-500 h-full transition-width duration-500 rounded"
-                                    style={{ width: `${sysdata().ram.percent}%` }}
-                                />
-                            </div>
-                            <p class="text-lg">
-                                Swap usage:{" "}
-                                {`${sysdata().swap.used.num} ${sysdata().swap.used.suffix} / ${
-                                    sysdata().swap.total.num
-                                } ${sysdata().swap.total.suffix}`}
-                            </p>
-                            <div class="h-6 bg-gray-400 w-full rounded">
-                                <div
-                                    class="bg-blue-500 h-full transition-width duration-500 rounded"
-                                    style={{ width: `${sysdata().swap.percent}%` }}
-                                />
-                            </div>
+                            <DisplayBar
+                                message={`${sysdata().cpu}%`}
+                                percent={sysdata().cpu}
+                                name="CPU"
+                                color="bg-green-500"
+                            />
+                            <DisplayBar
+                                message={`${sysdata().ram.used.num} ${
+                                    sysdata().ram.used.suffix
+                                } / ${sysdata().ram.total.num} ${sysdata().ram.total.suffix}`}
+                                percent={sysdata().ram.percent}
+                                name="RAM"
+                                color="bg-red-500"
+                            />
+                            <DisplayBar
+                                message={`${sysdata().swap.used.num} ${
+                                    sysdata().swap.used.suffix
+                                } / ${sysdata().swap.total.num} ${sysdata().swap.total.suffix}`}
+                                percent={sysdata().swap.percent}
+                                name="Swap"
+                                color="bg-blue-500"
+                            />
                         </>
                     )}
                 </Match>
             </Switch>
         </div>
     );
-};
+}
 
 export default App;
