@@ -18,7 +18,8 @@ serde = { version = "1.0.183", features = ["serde_derive"] }
 sysinfo = { version = "0.29.7", default-features = false }
 tokio = { version = "1.29.1", features = ["rt", "macros"] }
 tsync-macro = "0.1.0"
-vite-embed-axum = { git = "https://github.com/ravenclaw900/vite-embed", version = "0.1.0", features = ["prod"] }
+vite-embed-axum = { git = "https://github.com/ravenclaw900/vite-embed", version = "0.1.0", features = ["prod"], optional = true }
 
 [features]
-dev = ["vite-embed-axum/dev"]
+frontend = ["dep:vite-embed-axum"]
+dev = ["frontend", "vite-embed-axum/dev"]

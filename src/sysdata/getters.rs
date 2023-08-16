@@ -20,11 +20,11 @@ pub fn memory(sys: &mut System) -> MemoryData {
 
     let ram_used = sys.used_memory();
     let ram_total = sys.total_memory();
-    let ram_percent = round_percent((ram_used as f32) / (ram_total as f32));
+    let ram_percent = round_percent(((ram_used as f32) / (ram_total as f32)) * 100.);
 
     let swap_used = sys.used_swap();
     let swap_total = sys.total_swap();
-    let swap_percent = round_percent((swap_used as f32) / (swap_total as f32));
+    let swap_percent = round_percent(((swap_used as f32) / (swap_total as f32)) * 100.);
 
     MemoryData {
         ram: UsageData {

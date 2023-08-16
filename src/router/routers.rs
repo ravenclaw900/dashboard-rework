@@ -1,14 +1,18 @@
 use super::api;
 use crate::sysdata;
 use axum::{routing::get, Router};
+
+#[cfg(feature = "frontend")]
 use vite_embed_axum::vite_embed::{self, ViteEmbed};
+#[cfg(feature = "frontend")]
 use vite_embed_axum::vite_router;
 
-#[cfg(not(feature = "dev"))]
+#[cfg(all(not(feature = "dev"), feature = "frontend"))]
 const FRONTEND: ViteEmbed = vite_embed_axum::vite_embed::generate_vite_prod!(
     "$CARGO_MANIFEST_DIR/frontend/dist/manifest.json"
 );
 
+// If dev is enabled frontend has to be enabled
 #[cfg(feature = "dev")]
 const FRONTEND: ViteEmbed = vite_embed_axum::vite_embed::generate_vite_dev!(
     "$CARGO_MANIFEST_DIR/frontend/index.html",
@@ -17,11 +21,16 @@ const FRONTEND: ViteEmbed = vite_embed_axum::vite_embed::generate_vite_dev!(
 
 fn api_router() -> Router {
     let tx = sysdata::spawn_system_task();
-    Router::new().route("/cpu", get(api::system)).with_state(tx)
+    Router::new()
+        .route("/system", get(api::system))
+        .with_state(tx)
 }
 
 pub fn router() -> Router {
-    let asset_router = vite_router(FRONTEND);
+    let router = Router::new();
 
-    Router::new().nest("/api", api_router()).merge(asset_router)
+    #[cfg(feature = "frontend")]
+    let router = router.merge(vite_router(FRONTEND));
+
+    router.nest("/api", api_router())
 }
