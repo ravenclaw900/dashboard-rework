@@ -10,8 +10,7 @@ function DisplayBar(props: { message: string; percent: number; color: string; na
             </p>
             <div class="h-6 bg-gray-400 w-full rounded">
                 <div
-                    class="h-full transition-width duration-500 rounded"
-                    classList={{ [props.color]: true }}
+                    class={`h-full transition-width duration-500 rounded ${props.color}`}
                     style={{ width: `${props.percent}%` }}
                 />
             </div>
