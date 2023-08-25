@@ -1,20 +1,12 @@
 /* This file is generated and managed by tsync */
 
-export type BinarySuffix =
-  | "B" | "KiB" | "MiB" | "GiB" | "TiB" | "PiB";
-
-export interface PrettyBytesBinary {
-  num: number;
-  suffix: BinarySuffix;
-}
-
 export interface UsageData {
-  used: PrettyBytesBinary;
-  total: PrettyBytesBinary;
+  used: number;
+  total: number;
   percent: number;
 }
 
-export interface System {
+export interface SystemData {
   cpu: number;
   ram: UsageData;
   swap: UsageData;

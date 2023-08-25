@@ -3,13 +3,14 @@ use std::time::Duration;
 use sysinfo::{System, SystemExt};
 use tokio::sync::{mpsc, oneshot};
 
+use crate::types;
+
 use super::getters;
 
 const CACHE_DURATION: Duration = Duration::from_millis(1500);
 
 pub enum Request {
-    Cpu(oneshot::Sender<f32>),
-    Memory(oneshot::Sender<getters::MemoryData>),
+    System(oneshot::Sender<types::SystemData>),
 }
 
 struct SystemDataCache {
@@ -26,27 +27,20 @@ impl SystemDataCache {
     }
 }
 
-fn send_val<T, F>(
-    channel: oneshot::Sender<T>,
-    cache: &mut EphemeralOption<T>,
-    sys: &mut System,
-    init_fn: F,
-) where
+fn try_from_cache<T, F>(cache: &mut EphemeralOption<T>, sys: &mut System, init_fn: F) -> T
+where
     F: FnOnce(&mut System) -> T,
     T: Clone,
 {
     // Use if let else here to satisfy borrow checker
     #[allow(clippy::option_if_let_else)]
-    let val = if let Some(val) = cache.get() {
+    if let Some(val) = cache.get() {
         val.clone()
     } else {
         let val = init_fn(sys);
         cache.insert(val.clone());
         val
-    };
-
-    // Ignore channel send result
-    let _ = channel.send(val);
+    }
 }
 
 pub fn spawn_system_task() -> mpsc::Sender<Request> {
@@ -59,9 +53,18 @@ pub fn spawn_system_task() -> mpsc::Sender<Request> {
     tokio::spawn(async move {
         while let Some(req) = rx.recv().await {
             match req {
-                Request::Cpu(channel) => send_val(channel, &mut cache.cpu, &mut sys, getters::cpu),
-                Request::Memory(channel) => {
-                    send_val(channel, &mut cache.memory, &mut sys, getters::memory);
+                Request::System(channel) => {
+                    let cpu = try_from_cache(&mut cache.cpu, &mut sys, getters::cpu);
+                    let mem = try_from_cache(&mut cache.memory, &mut sys, getters::memory);
+
+                    let sysdata = types::SystemData {
+                        cpu,
+                        ram: mem.ram,
+                        swap: mem.swap,
+                    };
+
+                    // Ignore channel send result
+                    let _ = channel.send(sysdata);
                 }
             }
         }

@@ -1,5 +1,4 @@
 use crate::types::UsageData;
-use pretty_bytes_typed::pretty_bytes_binary;
 use sysinfo::{CpuExt, CpuRefreshKind, System, SystemExt};
 
 #[derive(Clone)]
@@ -28,13 +27,13 @@ pub fn memory(sys: &mut System) -> MemoryData {
 
     MemoryData {
         ram: UsageData {
-            used: pretty_bytes_binary(ram_used as f64, Some(2)),
-            total: pretty_bytes_binary(ram_total as f64, Some(2)),
+            used: ram_used,
+            total: ram_total,
             percent: ram_percent,
         },
         swap: UsageData {
-            used: pretty_bytes_binary(swap_used as f64, Some(2)),
-            total: pretty_bytes_binary(swap_total as f64, Some(2)),
+            used: swap_used,
+            total: swap_total,
             percent: swap_percent,
         },
     }

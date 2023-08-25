@@ -13,7 +13,6 @@ axum = { version = "0.6.20", default-features = false, features = ["http1", "tok
 color-eyre = "0.6.2"
 ephemeropt = "0.2.0"
 flexible-hyper-server-tls = "0.1.1"
-pretty-bytes-typed = { version = "0.1.1", features = ["serde"] }
 serde = { version = "1.0.183", features = ["serde_derive"] }
 sysinfo = { version = "0.29.7", default-features = false }
 tokio = { version = "1.29.1", features = ["rt", "macros"] }

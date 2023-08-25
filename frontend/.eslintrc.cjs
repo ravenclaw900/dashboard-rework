@@ -30,5 +30,7 @@ module.exports = {
         "import/extensions": ["error", "never"],
         // Allow variable shadowing
         "@typescript-eslint/no-shadow": "off",
+        // Allow `void` operator (used to call promises but not use value)
+        "no-void": ["off"],
     },
 };
