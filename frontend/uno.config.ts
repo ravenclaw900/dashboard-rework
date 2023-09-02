@@ -12,4 +12,12 @@ export default defineConfig({
         }),
         presetWind(),
     ],
+    theme: {
+        colors: {
+            dplime: {
+                primary: "#c5ff00",
+                dark: "#9ccc00",
+            },
+        },
+    },
 });

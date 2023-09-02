@@ -1,14 +1,11 @@
-import { JSX, createEffect, onCleanup } from "solid-js";
+import { Show, createResource, createEffect, onCleanup } from "solid-js";
+import wretch from "wretch";
+import { makeTimer } from "@solid-primitives/timer";
+import prettyBytes from "pretty-bytes";
 import uPlot from "uplot";
 import "uplot/dist/uPlot.min.css";
-import prettyBytes from "pretty-bytes";
-import { SystemData } from "./types";
-
-function Card(props: { children: JSX.Element }) {
-    return (
-        <div class="bg-white rounded shadow-md border border-gray-800 flex-1">{props.children}</div>
-    );
-}
+import { SystemData } from "../types";
+import Card from "../shared-components/Card";
 
 function DisplayBar(props: { message: string; percent: number; color: string; name: string }) {
     return (
@@ -16,7 +13,7 @@ function DisplayBar(props: { message: string; percent: number; color: string; na
             <p class="text-lg">
                 {props.name} usage: {props.message}
             </p>
-            <div class="h-6 bg-gray-400 w-full rounded">
+            <div class="h-6 w-full rounded bg-gray-400">
                 <div
                     class={`h-full transition-width duration-500 rounded ${props.color}`}
                     style={{ width: `${props.percent}%` }}
@@ -117,4 +114,25 @@ function GraphCard(props: { sysdata: SystemData }) {
     );
 }
 
-export { GraphCard, StatsCard };
+function Home(props: { darkMode: boolean }) {
+    const [sysdata, { refetch: refetchSystem }] = createResource<SystemData>(() =>
+        wretch("http://localhost:5252/api/system").get().json(),
+    );
+
+    makeTimer(() => void refetchSystem(), 2000, setInterval);
+
+    createEffect(() => console.log(props.darkMode));
+
+    return (
+        <Show when={sysdata()}>
+            {(sysdata) => (
+                <>
+                    <GraphCard sysdata={sysdata()} />
+                    <StatsCard sysdata={sysdata()} />
+                </>
+            )}
+        </Show>
+    );
+}
+
+export default Home;

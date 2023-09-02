@@ -1,26 +1,31 @@
-import { createResource, Show } from "solid-js";
-import wretch from "wretch";
-import { makeTimer } from "@solid-primitives/timer";
-import { SystemData } from "./types";
-import { GraphCard, StatsCard } from "./Cards";
+import { createSignal, lazy } from "solid-js";
+import { makePersisted } from "@solid-primitives/storage";
+import { Route, Routes } from "@solidjs/router";
+import Header from "./main-components/Header";
+import SidebarMenu from "./main-components/SidebarMenu";
+
+const Home = lazy(() => import("./pages/Home"));
 
 function App() {
-    const [sysdata, { refetch: refetchSystem }] = createResource<SystemData>(() =>
-        wretch("http://localhost:5252/api/system").get().json(),
-    );
-
-    makeTimer(() => void refetchSystem(), 2000, setInterval);
+    // eslint-disable-next-line solid/reactivity
+    const [darkMode, setDarkMode] = makePersisted(createSignal(false));
+    const [showMenu, setShowMenu] = createSignal(true);
 
     return (
-        <div class="bg-gray-50 h-screen flex gap-3">
-            <Show when={sysdata()}>
-                {(sysdata) => (
-                    <>
-                        <GraphCard sysdata={sysdata()} />
-                        <StatsCard sysdata={sysdata()} />
-                    </>
-                )}
-            </Show>
+        <div classList={{ dark: darkMode() }} class="flex">
+            <SidebarMenu show={showMenu()} />
+            <div class="w-full">
+                <Header
+                    toggleDarkMode={() => setDarkMode((darkMode) => !darkMode)}
+                    toggleMenu={() => setShowMenu((menu) => !menu)}
+                    darkMode={darkMode()}
+                />
+                <div class="h-screen flex gap-3 bg-gray-50">
+                    <Routes>
+                        <Route path="/test" component={<Home darkMode={darkMode()} />} />
+                    </Routes>
+                </div>
+            </div>
         </div>
     );
 }
