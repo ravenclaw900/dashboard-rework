@@ -4,7 +4,7 @@ use std::net::{Ipv6Addr, SocketAddr};
 
 use color_eyre::Result;
 
-mod router;
+mod frontend;
 mod sysdata;
 mod types;
 
@@ -15,7 +15,7 @@ async fn main() -> Result<()> {
     // Using unspecified IPv6 addr will bind to 0.0.0.0 on both v4 and v6
     let addr = SocketAddr::from((Ipv6Addr::UNSPECIFIED, 5252));
 
-    let router = router::router();
+    let router = frontend::router();
 
     axum::Server::bind(&addr)
         .serve(router.into_make_service())

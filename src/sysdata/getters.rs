@@ -1,19 +1,13 @@
 use crate::types::UsageData;
 use sysinfo::{CpuExt, CpuRefreshKind, System, SystemExt};
 
-#[derive(Clone)]
-pub struct MemoryData {
-    pub ram: UsageData,
-    pub swap: UsageData,
-}
-
 pub fn cpu(sys: &mut System) -> f32 {
     sys.refresh_cpu_specifics(CpuRefreshKind::new().with_cpu_usage());
     round_percent(sys.global_cpu_info().cpu_usage())
 }
 
 #[allow(clippy::cast_precision_loss)]
-pub fn memory(sys: &mut System) -> MemoryData {
+pub fn memory(sys: &mut System) -> (UsageData, UsageData) {
     // refresh_memory refreshes RAM and Swap, but used_memory and used_swap return RAM and Swap, respectively
     sys.refresh_memory();
 
@@ -25,18 +19,18 @@ pub fn memory(sys: &mut System) -> MemoryData {
     let swap_total = sys.total_swap();
     let swap_percent = round_percent(((swap_used as f32) / (swap_total as f32)) * 100.);
 
-    MemoryData {
-        ram: UsageData {
+    (
+        UsageData {
             used: ram_used,
             total: ram_total,
             percent: ram_percent,
         },
-        swap: UsageData {
+        UsageData {
             used: swap_used,
             total: swap_total,
             percent: swap_percent,
         },
-    }
+    )
 }
 
 fn round_percent(val: f32) -> f32 {

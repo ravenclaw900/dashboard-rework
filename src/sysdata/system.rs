@@ -9,13 +9,15 @@ use super::getters;
 
 const CACHE_DURATION: Duration = Duration::from_millis(1500);
 
+pub type RequestTx = mpsc::Sender<Request>;
+
 pub enum Request {
     System(oneshot::Sender<types::SystemData>),
 }
 
 struct SystemDataCache {
     cpu: EphemeralOption<f32>,
-    memory: EphemeralOption<getters::MemoryData>,
+    memory: EphemeralOption<(types::UsageData, types::UsageData)>,
 }
 
 impl SystemDataCache {
@@ -59,8 +61,8 @@ pub fn spawn_system_task() -> mpsc::Sender<Request> {
 
                     let sysdata = types::SystemData {
                         cpu,
-                        ram: mem.ram,
-                        swap: mem.swap,
+                        ram: mem.0,
+                        swap: mem.1,
                     };
 
                     // Ignore channel send result
