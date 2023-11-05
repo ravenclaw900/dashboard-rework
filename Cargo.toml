@@ -13,5 +13,6 @@ axum = { version = "0.6.20", default-features = false, features = ["http1", "tok
 color-eyre = "0.6.2"
 ephemeropt = "0.2.0"
 maud = { version = "0.25.0", features = ["axum"] }
+pretty-bytes-typed = "0.2.0"
 sysinfo = { version = "0.29.7", default-features = false }
 tokio = { version = "1.29.1", features = ["rt", "macros"] }

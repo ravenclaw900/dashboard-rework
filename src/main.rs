@@ -1,4 +1,6 @@
 #![warn(clippy::pedantic, rust_2018_idioms, clippy::nursery)]
+// Allow this because axum requires async handlers, even if they don't use async
+#![allow(clippy::unused_async)]
 
 use std::net::{Ipv6Addr, SocketAddr};
 

@@ -1,0 +1,28 @@
+/* CSS for main page */
+header {
+  height: var(--size-8);
+  background-color: var(--gray-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-2);
+}
+
+/* CSS for system page */
+.meter-container {
+  height: var(--size-4);
+  background-color: var(--gray-5);
+}
+
+.meter-container div {
+  height: 100%;
+  transition: width 500ms;
+}
+
+#cpu-meter {
+  background-color: var(--green-5);
+}
+
+#ram-meter {
+  background-color: var(--red-5);
+}
