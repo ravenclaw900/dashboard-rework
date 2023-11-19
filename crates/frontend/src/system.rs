@@ -1,32 +1,15 @@
-use super::shared;
 use axum::extract::State;
-use maud::{html, Markup, DOCTYPE};
+use maud::{html, Markup};
 use pretty_bytes_typed::pretty_bytes_binary;
+use sysdata::{Request, RequestTx};
 use tokio::sync::oneshot;
 
-use crate::sysdata::{Request, RequestTx};
+use super::layout;
 
 pub async fn system_page() -> Markup {
-    html! {
-        (DOCTYPE)
-
-        head {
-            link rel="stylesheet" href="/vendored/vars.css";
-            link rel="stylesheet" href="/vendored/index.css";
-        }
-
-        body {
-            (shared::nav_menu())
-
-            (shared::header())
-
-            main hx-get="/api/system" hx-trigger="every 2s, load" {}
-
-            (shared::footer())
-
-            script src="/vendored/htmx.js" {}
-        }
-    }
+    layout::main_template(html! {
+        main hx-get="/api/system" hx-trigger="load, every 2s" {}
+    })
 }
 
 pub async fn system_api(State(tx): State<RequestTx>) -> Markup {
