@@ -1,11 +1,76 @@
+/* Reset styles */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+}
+
 /* CSS for main page */
-header {
-  height: var(--size-8);
-  background-color: var(--gray-1);
+body {
+  font-family: var(--font-sans);
+  display: grid;
+  grid-template-columns: minmax(var(--size-12), 1fr) 5fr;
+  grid-template-rows: var(--size-8) 1fr var(--size-8);
+  grid-template-areas: "nav head" "nav main" "nav foot";
+}
+
+body > header {
+  grid-area: head;
+  background-color: var(--gray-2);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: var(--font-size-2);
+}
+
+nav {
+  grid-area: nav;
+  background-color: var(--gray-9);
+
+  a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: var(--size-8);
+    color: var(--gray-2);
+
+    &:hover {
+      background-color: var(--gray-7);
+    }
+  }
+}
+
+main {
+  background-color: var(--gray-1);
+  padding: var(--size-2);
+}
+
+section {
+  background-color: white;
+  border-radius: var(--radius-3);
+  padding: var(--size-2);
+  box-shadow: var(--shadow-4);
+
+  header {
+    font-weight: var(--font-weight-6);
+    font-size: var(--font-size-3);
+    border-bottom: var(--border-size-3) solid var(--gray-2);
+    margin-bottom: var(--size-2);
+  }
+}
+
+footer {
+  background-color: var(--gray-2);
+  display: flex;
+  justify-content: center;
 }
 
 /* CSS for system page */

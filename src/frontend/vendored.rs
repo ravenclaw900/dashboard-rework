@@ -14,8 +14,5 @@ macro_rules! vendored_file {
     };
 }
 
-vendored_file!(htmx, "htmx-1.9.6.js", JS_CONTENT_HEADER);
-//vendored_file!(css_scope_inline, "css-scope-inline.js", JS_CONTENT_HEADER);
-
 vendored_file!(open_props, "open-props.css", CSS_CONTENT_HEADER);
 vendored_file!(index_css, "index.css", CSS_CONTENT_HEADER);

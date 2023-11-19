@@ -1,5 +1,3 @@
-use tokio::sync::mpsc::Sender;
-
 use super::{pages, vendored};
 use crate::sysdata;
 
@@ -13,16 +11,17 @@ fn vendored_router() -> Router {
         .route("/open-props.css", get(vendored::open_props))
 }
 
-fn api_router() -> Router<Sender<sysdata::Request>> {
-    Router::new().route("/system", get(pages::home::system_api))
-}
-
-pub fn router() -> Router {
+fn api_router() -> Router {
     let tx = sysdata::spawn_system_task();
 
     Router::new()
+        .route("/system", get(pages::home::system_api))
+        .with_state(tx)
+}
+
+pub fn router() -> Router {
+    Router::new()
         .route("/", get(pages::home::system_page))
         .nest("/api", api_router())
-        .with_state(tx)
         .nest("/vendored", vendored_router())
 }

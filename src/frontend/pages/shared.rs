@@ -7,3 +7,23 @@ pub fn header() -> Markup {
         }
     }
 }
+
+pub fn footer() -> Markup {
+    let current_version = env!("CARGO_PKG_VERSION");
+
+    html! {
+        footer {
+            "DietPi Dashboard v"(current_version)" by ravenclaw900"
+        }
+    }
+}
+
+pub fn nav_menu() -> Markup {
+    html! {
+        nav {
+            a href="https://example.com" {
+                "Test"
+            }
+        }
+    }
+}
