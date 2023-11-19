@@ -1,0 +1,117 @@
+/* Adapted from open-props */
+:root {
+  /* Colors */
+  --gray-0: #f8fafb;
+  --gray-3: #e0e4e5;
+  --gray-6: #979b9d;
+  --gray-9: #50514f;
+  --gray-12: #121210;
+
+  --red-0: #fff5f5;
+  --red-3: #ffa8a8;
+  --red-6: #fa5252;
+  --red-9: #c92a2a;
+  --red-12: #7d1a1a;
+
+  --pink-0: #fff0f6;
+  --pink-3: #faa2c1;
+  --pink-6: #e64980;
+  --pink-9: #a61e4d;
+  --pink-12: #59102a;
+
+  --blue-0: #e7f5ff;
+  --blue-3: #74c0fc;
+  --blue-6: #228be6;
+  --blue-9: #1864ab;
+  --blue-12: #0d375e;
+
+  --green-0: #ebfbee;
+  --green-3: #8ce99a;
+  --green-6: #40c057;
+  --green-9: #2b8a3e;
+  --green-12: #133d1b;
+
+  --yellow-0: #fff9db;
+  --yellow-3: #ffe066;
+  --yellow-6: #fab005;
+  --yellow-9: #e67700;
+  --yellow-12: #663500;
+
+  --brown-0: #faf4eb;
+  --brown-3: #d3b79e;
+  --brown-6: #a87c56;
+  --brown-9: #6f4b2d;
+  --brown-12: #422412;
+
+  --dietpi-light: #c5ff00;
+  --dietpi-dark: #9ccc00;
+
+  /* Borders */
+  --border-size-1: 1px;
+  --border-size-2: 2px;
+  --border-size-3: 5px;
+  --border-size-4: 10px;
+  --border-size-5: 25px;
+
+  --radius-xs: 3px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  /* Shadows */
+  --shadow-xs: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+  /* Fonts */
+  --font-sans: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell,
+    Noto Sans, sans-serif;
+  --font-serif: ui-serif, serif;
+  --font-mono: Dank Mono, Operator Mono, Inconsolata, Fira Mono, ui-monospace,
+    SF Mono, Monaco, Droid Sans Mono, Source Code Pro, monospace;
+
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --font-weight-black: 900;
+
+  --font-size-000: 0.75rem;
+  --font-size-00: 0.875rem;
+  --font-size-0: 1rem;
+  --font-size-1: 1.125rem;
+  --font-size-2: 1.25rem;
+  --font-size-3: 1.5rem;
+  --font-size-4: 1.875rem;
+  --font-size-5: 2.25rem;
+  --font-size-6: 3rem;
+  --font-size-7: 3.75rem;
+  --font-size-8: 4.5rem;
+
+  /* Sizes */
+  --size-000: -0.5rem;
+  --size-00: -0.25rem;
+  --size-1: 0.25rem;
+  --size-2: 0.5rem;
+  --size-3: 1rem;
+  --size-4: 1.25rem;
+  --size-5: 1.5rem;
+  --size-6: 1.75rem;
+  --size-7: 2rem;
+  --size-8: 3rem;
+  --size-9: 4rem;
+  --size-10: 5rem;
+  --size-11: 7.5rem;
+  --size-12: 10rem;
+  --size-13: 15rem;
+  --size-14: 20rem;
+  --size-15: 30rem;
+}

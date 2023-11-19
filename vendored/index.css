@@ -24,7 +24,7 @@ body {
 
 body > header {
   grid-area: head;
-  background-color: var(--gray-2);
+  background-color: var(--dietpi-light);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -33,42 +33,51 @@ body > header {
 
 nav {
   grid-area: nav;
-  background-color: var(--gray-9);
+  background-color: var(--gray-12);
 
+  div,
   a {
     display: flex;
     align-items: center;
     justify-content: center;
     height: var(--size-8);
-    color: var(--gray-2);
+  }
+
+  div {
+    background-color: var(--dietpi-dark);
+    font-size: var(--font-size-4);
+  }
+
+  a {
+    color: var(--gray-3);
 
     &:hover {
-      background-color: var(--gray-7);
+      background-color: var(--gray-9);
     }
   }
 }
 
 main {
-  background-color: var(--gray-1);
+  background-color: var(--gray-0);
   padding: var(--size-2);
 }
 
 section {
   background-color: white;
-  border-radius: var(--radius-3);
+  border-radius: var(--radius-md);
   padding: var(--size-2);
-  box-shadow: var(--shadow-4);
+  box-shadow: var(--shadow-lg);
 
   header {
-    font-weight: var(--font-weight-6);
+    font-weight: var(--font-weight-bold);
     font-size: var(--font-size-3);
-    border-bottom: var(--border-size-3) solid var(--gray-2);
+    border-bottom: var(--border-size-3) solid var(--gray-3);
     margin-bottom: var(--size-2);
   }
 }
 
 footer {
-  background-color: var(--gray-2);
+  background-color: var(--gray-3);
   display: flex;
   justify-content: center;
 }
@@ -76,7 +85,7 @@ footer {
 /* CSS for system page */
 .meter-container {
   height: var(--size-4);
-  background-color: var(--gray-5);
+  background-color: var(--gray-6);
 }
 
 .meter-container div {
@@ -85,9 +94,9 @@ footer {
 }
 
 #cpu-meter {
-  background-color: var(--green-5);
+  background-color: var(--green-6);
 }
 
 #ram-meter {
-  background-color: var(--red-5);
+  background-color: var(--red-6);
 }

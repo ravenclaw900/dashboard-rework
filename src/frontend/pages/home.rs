@@ -11,7 +11,7 @@ pub async fn system_page() -> Markup {
         (DOCTYPE)
 
         head {
-            link rel="stylesheet" href="/vendored/open-props.css";
+            link rel="stylesheet" href="/vendored/vars.css";
             link rel="stylesheet" href="/vendored/index.css";
         }
 

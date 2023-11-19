@@ -21,8 +21,13 @@ pub fn footer() -> Markup {
 pub fn nav_menu() -> Markup {
     html! {
         nav {
-            a href="https://example.com" {
-                "Test"
+            div {
+                "DietPi Dashboard"
+            }
+            ul {
+                a href="https://example.com" {
+                    "Test"
+                }
             }
         }
     }

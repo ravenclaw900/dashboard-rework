@@ -8,7 +8,7 @@ fn vendored_router() -> Router {
     Router::new()
         .route("/htmx.js", get(vendored::htmx))
         .route("/index.css", get(vendored::index_css))
-        .route("/open-props.css", get(vendored::open_props))
+        .route("/vars.css", get(vendored::css_vars))
 }
 
 fn api_router() -> Router {
