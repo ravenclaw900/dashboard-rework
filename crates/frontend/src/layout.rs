@@ -19,6 +19,7 @@ pub fn main_template(content: Markup) -> Markup {
             (footer())
 
             script src="/static/htmx.js" {}
+            script src="/static/iconify.js" {}
         }
     }
 }
@@ -37,6 +38,9 @@ fn footer() -> Markup {
     html! {
         footer {
             "DietPi Dashboard v"(current_version)" by ravenclaw900"
+            a href="https://github.com/ravenclaw900/dashboard-rework" target="_blank" {
+                iconify-icon icon="cib:github" style="font-size:var(--font-size-4);color:black;" {}
+            }
         }
     }
 }
@@ -49,6 +53,7 @@ fn nav_menu() -> Markup {
             }
             ul {
                 a href="/system" {
+                    iconify-icon icon="fa6-solid:database" {}
                     "System"
                 }
             }
