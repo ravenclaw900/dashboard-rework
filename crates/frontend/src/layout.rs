@@ -1,6 +1,6 @@
 use maud::{html, Markup, DOCTYPE};
 
-pub fn main_template(content: Markup) -> Markup {
+pub fn main_template(endpoint: &str) -> Markup {
     html! {
         (DOCTYPE)
 
@@ -14,7 +14,7 @@ pub fn main_template(content: Markup) -> Markup {
 
             (header())
 
-            (content)
+            main hx-get=(endpoint) hx-trigger="load" hx-swap="outerHTML" {}
 
             (footer())
 

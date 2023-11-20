@@ -13,6 +13,14 @@ body {
   height: 100%;
 }
 
+/* Invisible buttons */
+button {
+  font-size: inherit;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+}
+
 /* CSS for main page */
 body {
   font-family: var(--font-sans);
@@ -97,9 +105,15 @@ table {
   width: 100%;
   border-spacing: 0px;
 
-  thead {
+  thead tr {
     background-color: var(--dietpi-light);
     height: var(--size-6);
+  }
+
+  th button {
+    width: 100%;
+    display: flex;
+    gap: var(--size-2);
   }
 
   tbody tr {
