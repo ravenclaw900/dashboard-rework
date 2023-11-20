@@ -9,6 +9,7 @@ pub type RequestTx = mpsc::Sender<Request>;
 
 pub enum Request {
     System(oneshot::Sender<types::SystemData>),
+    Process(oneshot::Sender<Vec<types::ProcessData>>),
 }
 
 pub fn spawn_system_task() -> RequestTx {
@@ -22,17 +23,18 @@ pub fn spawn_system_task() -> RequestTx {
         while let Some(req) = rx.recv().await {
             match req {
                 Request::System(channel) => {
-                    let cpu = try_from_cache_or_init(&mut cache.cpu, &mut sys, getters::cpu);
-                    let mem = try_from_cache_or_init(&mut cache.memory, &mut sys, getters::memory);
-
-                    let sysdata = types::SystemData {
-                        cpu,
-                        ram: mem.0,
-                        swap: mem.1,
-                    };
+                    let sysdata =
+                        try_from_cache_or_init(&mut cache.system, &mut sys, getters::system);
 
                     // Ignore channel send result
                     let _ = channel.send(sysdata);
+                }
+                Request::Process(channel) => {
+                    let processes =
+                        try_from_cache_or_init(&mut cache.processes, &mut sys, getters::process);
+
+                    // Ignore channel send result
+                    let _ = channel.send(processes);
                 }
             }
         }

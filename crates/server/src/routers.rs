@@ -15,6 +15,7 @@ fn api_router() -> Router {
 
     Router::new()
         .route("/system", get(frontend::system_api))
+        .route("/process", get(frontend::process_api))
         .with_state(tx)
 }
 
@@ -22,6 +23,7 @@ fn page_router() -> Router {
     Router::new()
         .route("/", get(|| async { Redirect::permanent("/system") }))
         .route("/system", get(frontend::system_page))
+        .route("/process", get(frontend::process_page))
 }
 
 pub fn router() -> Router {

@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 axum = { version = "0.6.20", default-features = false }
+humantime = "2.1.0"
 maud = { version = "0.25.0", features = ["axum"] }
 pretty-bytes-typed = "0.2.0"
 sysdata = { version = "0.7.0", path = "../sysdata" }

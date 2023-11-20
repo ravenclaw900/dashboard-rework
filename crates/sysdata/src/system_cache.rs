@@ -7,15 +7,15 @@ use super::types;
 const CACHE_DURATION: Duration = Duration::from_millis(1500);
 
 pub struct SystemCache {
-    pub cpu: EphemeralOption<f32>,
-    pub memory: EphemeralOption<(types::UsageData, types::UsageData)>,
+    pub system: EphemeralOption<types::SystemData>,
+    pub processes: EphemeralOption<Vec<types::ProcessData>>,
 }
 
 impl SystemCache {
     pub const fn new() -> Self {
         Self {
-            cpu: EphemeralOption::new_empty(CACHE_DURATION),
-            memory: EphemeralOption::new_empty(CACHE_DURATION),
+            system: EphemeralOption::new_empty(CACHE_DURATION),
+            processes: EphemeralOption::new_empty(CACHE_DURATION),
         }
     }
 }

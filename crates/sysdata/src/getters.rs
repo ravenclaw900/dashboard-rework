@@ -1,14 +1,14 @@
-use sysinfo::{CpuExt, CpuRefreshKind, System, SystemExt};
+use sysinfo::{CpuExt, CpuRefreshKind, ProcessExt, System, SystemExt};
 
 use super::types;
 
-pub fn cpu(sys: &mut System) -> f32 {
+fn cpu(sys: &mut System) -> f32 {
     sys.refresh_cpu_specifics(CpuRefreshKind::new().with_cpu_usage());
     round_percent(sys.global_cpu_info().cpu_usage())
 }
 
 #[allow(clippy::cast_precision_loss)]
-pub fn memory(sys: &mut System) -> (types::UsageData, types::UsageData) {
+fn memory(sys: &mut System) -> (types::UsageData, types::UsageData) {
     // refresh_memory refreshes RAM and Swap, but used_memory and used_swap return RAM and Swap, respectively
     sys.refresh_memory();
 
@@ -34,6 +34,37 @@ pub fn memory(sys: &mut System) -> (types::UsageData, types::UsageData) {
     )
 }
 
+pub fn system(sys: &mut System) -> types::SystemData {
+    let cpu = cpu(sys);
+    let (ram, swap) = memory(sys);
+    types::SystemData { cpu, ram, swap }
+}
+
 fn round_percent(val: f32) -> f32 {
     (val * 100.).round() / 100.
+}
+
+pub fn process(sys: &mut System) -> Vec<types::ProcessData> {
+    sys.refresh_processes();
+    let process_map = sys.processes();
+    let mut processes = Vec::with_capacity(process_map.len());
+
+    for proc in process_map.values() {
+        // Don't put kernel threads on the list
+        // (all kernel threads have an empty cmdline)
+        if proc.cmd().is_empty() {
+            continue;
+        }
+
+        processes.push(types::ProcessData {
+            pid: proc.pid().into(),
+            mem: proc.memory(),
+            cpu: round_percent(proc.cpu_usage()),
+            status: proc.status().to_string(),
+            name: proc.name().to_string(),
+            runtime: std::time::Duration::from_secs(proc.run_time()),
+        })
+    }
+
+    processes
 }

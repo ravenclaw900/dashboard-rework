@@ -56,6 +56,10 @@ fn nav_menu() -> Markup {
                     iconify-icon icon="fa6-solid:database" {}
                     "System"
                 }
+                a href="/process" {
+                    iconify-icon icon="fa6-solid:microchip" {}
+                    "Processes"
+                }
             }
         }
     }

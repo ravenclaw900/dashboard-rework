@@ -45,7 +45,7 @@ nav {
   div {
     justify-content: center;
     background-color: var(--dietpi-dark);
-    font-size: var(--font-size-4);
+    font-size: clamp(var(--font-size-2), 2vw, var(--font-size-4));
   }
 
   a {
@@ -66,20 +66,6 @@ main {
   padding: var(--size-2);
 }
 
-section {
-  background-color: white;
-  border-radius: var(--radius-md);
-  padding: var(--size-2);
-  box-shadow: var(--shadow-lg);
-
-  header {
-    font-weight: var(--font-weight-medium);
-    font-size: var(--font-size-3);
-    border-bottom: var(--border-size-3) solid var(--gray-3);
-    margin-bottom: var(--size-2);
-  }
-}
-
 footer {
   background-color: var(--gray-3);
   border-top: var(--border-size-1) solid var(--gray-6);
@@ -89,10 +75,47 @@ footer {
   font-size: var(--font-size-1);
 }
 
+/* CSS shared between pages */
+section {
+  background-color: white;
+  border-radius: var(--radius-md);
+  padding: var(--size-2);
+  box-shadow: var(--shadow-lg);
+  border-top: var(--border-size-3) solid var(--gray-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-2);
+
+  header {
+    font-weight: var(--font-weight-medium);
+    font-size: var(--font-size-3);
+    border-bottom: var(--border-size-2) solid var(--gray-3);
+  }
+}
+
+table {
+  width: 100%;
+  border-spacing: 0px;
+
+  thead {
+    background-color: var(--dietpi-light);
+    height: var(--size-6);
+  }
+
+  tbody tr {
+    height: var(--size-8);
+    border-bottom: var(--gray-6) solid var(--border-size-2);
+
+    &:nth-child(odd) {
+      background-color: var(--gray-3);
+    }
+  }
+}
+
 /* CSS for system page */
 .meter-container {
-  height: var(--size-4);
-  background-color: var(--gray-6);
+  height: var(--size-3);
+  background-color: var(--gray-3);
 }
 
 .meter-container div {
