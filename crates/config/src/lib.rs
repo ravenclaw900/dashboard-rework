@@ -1,6 +1,8 @@
 use once_cell::sync::Lazy;
 use serde::Deserialize;
-use toml_edit::{table, value, Document};
+use toml_edit::Document;
+
+mod migrate;
 
 pub static CONFIG: Lazy<Config> = Lazy::new(config);
 
@@ -17,46 +19,6 @@ pub struct Config {
     pub tls: ConfigTls,
 }
 
-fn migrate(doc: &mut Document) -> bool {
-    let toml = doc.as_table();
-    let version = toml
-        .get("CONFIG_VERSION_DO_NOT_CHANGE")
-        .map(|x| x.as_integer().unwrap());
-    match version {
-        // From the original version of the dashboard
-        // Not even worth doing a migration, just try and copy old settings over to a file with new defaults
-        None => {
-            let mut new_toml = Document::new();
-            new_toml["CONFIG_VERSION_DO_NOT_CHANGE"] = value(1);
-            new_toml["port"] = value(5252);
-
-            let mut tls = table();
-            tls["enable_tls"] = value(false);
-            tls["cert_path"] = value("");
-            tls["key_path"] = value("");
-            new_toml["tls"] = tls;
-
-            if let Some(port) = toml.get("port") {
-                new_toml["port"] = port.clone();
-            }
-
-            if let Some(enable_tls) = toml.get("tls") {
-                new_toml["tls"]["enable_tls"] = enable_tls.clone();
-            }
-            if let Some(cert_path) = toml.get("cert") {
-                new_toml["cert_path"] = cert_path.clone();
-            }
-            if let Some(key_path) = toml.get("key") {
-                new_toml["key_path"] = key_path.clone();
-            }
-
-            *doc = new_toml;
-            false
-        }
-        Some(_) => true,
-    }
-}
-
 fn config() -> Config {
     let mut cfgpath = std::env::current_exe().expect("couldn't get path to executable");
     cfgpath.set_file_name("config.toml");
@@ -67,7 +29,7 @@ fn config() -> Config {
         .expect("config file is invalid");
 
     loop {
-        let migration_done = migrate(&mut toml);
+        let migration_done = migrate::migrate(&mut toml);
         if migration_done {
             break;
         } else {

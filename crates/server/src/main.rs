@@ -15,8 +15,6 @@ async fn main() {
         .await
         .expect("failed to bind to port");
 
-    let router = routers::router();
-
     let acceptor = if CONFIG.tls.enable_tls {
         let tls_acceptor = tlsconfig::get_tlsacceptor_from_files(
             &CONFIG.tls.cert_path,
@@ -33,6 +31,8 @@ async fn main() {
     } else {
         HyperHttpOrHttpsAcceptor::new_http(listener)
     };
+
+    let router = routers::router();
 
     axum::Server::builder(acceptor)
         .serve(router.into_make_service())
