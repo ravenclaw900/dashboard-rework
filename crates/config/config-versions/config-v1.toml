@@ -1,2 +1,7 @@
 CONFIG_VERSION_DO_NOT_CHANGE = 1
 port = 5252
+
+[tls]
+enable_tls = false
+cert_path = ""
+key_path = ""
