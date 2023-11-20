@@ -1,4 +1,8 @@
-use axum::{response::Redirect, routing::get, Router};
+use axum::{
+    response::Redirect,
+    routing::{get, post},
+    Router,
+};
 
 use super::static_files;
 
@@ -16,6 +20,7 @@ fn api_router() -> Router {
     Router::new()
         .route("/system", get(frontend::system_api))
         .route("/process", get(frontend::process_api))
+        .route("/process/:pid", post(system_api::process_signal))
         .with_state(tx)
 }
 

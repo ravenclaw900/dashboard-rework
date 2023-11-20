@@ -500,6 +500,7 @@ dependencies = [
  "axum",
  "frontend",
  "sysdata",
+ "system_api",
  "tokio",
 ]
 
@@ -556,6 +557,7 @@ name = "sysdata"
 version = "0.7.0"
 dependencies = [
  "ephemeropt",
+ "serde",
  "sysinfo",
  "tokio",
 ]
@@ -572,6 +574,16 @@ dependencies = [
  "ntapi",
  "once_cell",
  "winapi",
+]
+
+[[package]]
+name = "system_api"
+version = "0.7.0"
+dependencies = [
+ "axum",
+ "serde",
+ "sysdata",
+ "tokio",
 ]
 
 [[package]]

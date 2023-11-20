@@ -112,8 +112,7 @@ table {
 
   th button {
     width: 100%;
-    display: flex;
-    gap: var(--size-2);
+    font-weight: var(--font-weight-medium);
   }
 
   tbody tr {
@@ -143,4 +142,15 @@ table {
 
 #ram-meter {
   background-color: var(--red-6);
+}
+
+/* CSS for process page */
+.actions-cell {
+  display: flex;
+  /* I would prefer to use 100% here, but it doesn't seem to work */
+  height: var(--size-8);
+  justify-content: space-evenly;
+  * {
+    font-size: var(--font-size-3);
+  }
 }

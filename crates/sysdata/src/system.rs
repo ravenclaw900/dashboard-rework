@@ -1,6 +1,7 @@
 use sysinfo::{System, SystemExt};
 use tokio::sync::{mpsc, oneshot};
 
+use super::actions;
 use super::getters;
 use super::system_cache::{try_from_cache_or_init, SystemCache};
 use super::types;
@@ -10,6 +11,7 @@ pub type RequestTx = mpsc::Sender<Request>;
 pub enum Request {
     System(oneshot::Sender<types::SystemData>),
     Process(oneshot::Sender<Vec<types::ProcessData>>),
+    ProcessSignal(usize, types::ProcessSignal),
 }
 
 pub fn spawn_system_task() -> RequestTx {
@@ -35,6 +37,9 @@ pub fn spawn_system_task() -> RequestTx {
 
                     // Ignore channel send result
                     let _ = channel.send(processes);
+                }
+                Request::ProcessSignal(pid, signal) => {
+                    actions::process_signal(&mut sys, pid, signal)
                 }
             }
         }

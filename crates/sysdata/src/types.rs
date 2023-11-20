@@ -21,3 +21,12 @@ pub struct ProcessData {
     pub name: String,
     pub runtime: std::time::Duration,
 }
+
+#[derive(serde::Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum ProcessSignal {
+    Kill,
+    Term,
+    Stop,
+    Resume,
+}

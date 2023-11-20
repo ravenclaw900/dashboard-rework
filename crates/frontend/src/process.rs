@@ -72,7 +72,7 @@ pub async fn process_api(State(tx): State<RequestTx>, query: Query<ProcessQuery>
                         tr {
                             th {
                                 button hx-get="/api/process?sort=pid" hx-target="main" {
-                                    "PID"
+                                    "PID "
                                     @if let Column::Pid = sort {
                                         iconify-icon icon="fa6-solid:sort" {}
                                     }
@@ -80,7 +80,7 @@ pub async fn process_api(State(tx): State<RequestTx>, query: Query<ProcessQuery>
                             }
                             th {
                                 button hx-get="/api/process?sort=name" hx-target="main" {
-                                    "Name"
+                                    "Name "
                                     @if let Column::Name = sort {
                                         iconify-icon icon="fa6-solid:sort" {}
                                     }
@@ -88,7 +88,7 @@ pub async fn process_api(State(tx): State<RequestTx>, query: Query<ProcessQuery>
                             }
                             th {
                                 button hx-get="/api/process?sort=status" hx-target="main" {
-                                    "Status"
+                                    "Status "
                                     @if let Column::Status = sort {
                                         iconify-icon icon="fa6-solid:sort" {}
                                     }
@@ -96,7 +96,7 @@ pub async fn process_api(State(tx): State<RequestTx>, query: Query<ProcessQuery>
                             }
                             th {
                                 button hx-get="/api/process?sort=cpu" hx-target="main" {
-                                    "CPU usage"
+                                    "CPU usage "
                                     @if let Column::Cpu = sort {
                                         iconify-icon icon="fa6-solid:sort" {}
                                     }
@@ -104,7 +104,7 @@ pub async fn process_api(State(tx): State<RequestTx>, query: Query<ProcessQuery>
                             }
                             th {
                                 button hx-get="/api/process?sort=mem" hx-target="main" {
-                                    "Memory usage"
+                                    "Memory usage "
                                     @if let Column::Mem = sort {
                                         iconify-icon icon="fa6-solid:sort" {}
                                     }
@@ -112,11 +112,14 @@ pub async fn process_api(State(tx): State<RequestTx>, query: Query<ProcessQuery>
                             }
                             th {
                                 button hx-get="/api/process?sort=runtime" hx-target="main" {
-                                    "Runtime"
+                                    "Runtime "
                                     @if let Column::Runtime = sort {
                                         iconify-icon icon="fa6-solid:sort" {}
                                     }
                                 }
+                            }
+                            th {
+                                "Actions"
                             }
                         }
                     }
@@ -141,6 +144,23 @@ pub async fn process_api(State(tx): State<RequestTx>, query: Query<ProcessQuery>
                             td {
                                 @let pretty_runtime = format_duration(proc.runtime);
                                 (pretty_runtime)
+                            }
+                            td ."actions-cell" {
+                                button title="Terminate" hx-post={"/api/process/" (proc.pid) "?signal=term"} hx-swap="none" {
+                                    iconify-icon icon="fa6-solid:ban" {}
+                                }
+                                button title="Kill" hx-post={"/api/process/" (proc.pid) "?signal=kill"} hx-swap="none" {
+                                    iconify-icon icon="fa6-solid:skull" {}
+                                }
+                                @if proc.status == "Stopped" {
+                                    button title="Resume" hx-post={"/api/process/" (proc.pid) "?signal=resume"} hx-swap="none" {
+                                        iconify-icon icon="fa6-solid:play" {}
+                                    }
+                                } @else {
+                                    button title="Stop" hx-post={"/api/process/" (proc.pid) "?signal=stop"} hx-swap="none" {
+                                        iconify-icon icon="fa6-solid:pause" {}
+                                    }
+                                }
                             }
                         }
                     }
