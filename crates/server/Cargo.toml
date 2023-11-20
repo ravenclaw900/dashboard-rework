@@ -9,6 +9,7 @@ path = "src/main.rs"
 
 [dependencies]
 axum = { version = "0.6.20", default-features = false, features = ["http1", "tokio"] }
+config = { path = "../config" }
 frontend = { path = "../frontend" }
 sysdata = { path = "../sysdata" }
 system_api = { version = "0.7.0", path = "../system_api" }
