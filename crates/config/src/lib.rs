@@ -14,9 +14,18 @@ pub struct ConfigTls {
 }
 
 #[derive(Deserialize)]
+pub struct ConfigAuth {
+    pub enable_auth: bool,
+    pub privkey_path: String,
+    pub pubkey_path: String,
+    pub expiry: u64,
+}
+
+#[derive(Deserialize)]
 pub struct Config {
     pub port: u16,
     pub tls: ConfigTls,
+    pub auth: ConfigAuth,
 }
 
 fn config() -> Config {

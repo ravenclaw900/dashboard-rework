@@ -8,6 +8,7 @@ name = "dietpi-dashboard"
 path = "src/main.rs"
 
 [dependencies]
+auth = { version = "0.7.0", path = "../auth" }
 axum = { version = "0.6.20", default-features = false, features = ["http1", "tokio"] }
 config = { path = "../config" }
 flexible-hyper-server-tls = "0.1.1"

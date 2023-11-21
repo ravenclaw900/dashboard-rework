@@ -5,3 +5,9 @@ port = 5252
 enable_tls = false
 cert_path = ""
 key_path = ""
+
+[auth]
+enable_auth = false
+privkey_path = ""
+pubkey_path = ""
+expiry = 3600

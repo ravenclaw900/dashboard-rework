@@ -28,6 +28,13 @@ fn migrate_0_to_1(toml: &Table) -> Document {
     tls["key_path"] = value("");
     new_toml["tls"] = tls;
 
+    let mut auth = table();
+    auth["enable_auth"] = value(false);
+    auth["privkey_path"] = value("");
+    auth["pubkey_path"] = value("");
+    auth["expiry"] = value(3600);
+    new_toml["auth"] = auth;
+
     if let Some(port) = toml.get("port") {
         new_toml["port"] = port.clone();
     }
@@ -36,10 +43,10 @@ fn migrate_0_to_1(toml: &Table) -> Document {
         new_toml["tls"]["enable_tls"] = enable_tls.clone();
     }
     if let Some(cert_path) = toml.get("cert") {
-        new_toml["cert_path"] = cert_path.clone();
+        new_toml["tls"]["cert_path"] = cert_path.clone();
     }
     if let Some(key_path) = toml.get("key") {
-        new_toml["key_path"] = key_path.clone();
+        new_toml["tls"]["key_path"] = key_path.clone();
     }
 
     new_toml
