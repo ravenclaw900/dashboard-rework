@@ -3,6 +3,9 @@ name = "config"
 version = "0.7.0"
 edition = "2021"
 
+[lints]
+workspace = true
+
 [dependencies]
 once_cell = "1.18.0"
 serde = { version = "1.0.192", features = ["derive"] }

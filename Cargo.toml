@@ -2,11 +2,11 @@
 members = ["crates/sysdata", "crates/server", "crates/frontend", "crates/system_api", "crates/config", "crates/auth"]
 resolver = "2"
 
-[lints.clippy]
+[workspace.lints.clippy]
 pedantic = "warn"
 nursery = "warn"
 
-[lints.rust]
+[workspace.lints.rust]
 rust_2018_idioms = "warn"
 
 [profile.release]

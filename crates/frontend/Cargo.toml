@@ -3,6 +3,9 @@ name = "frontend"
 version = "0.7.0"
 edition = "2021"
 
+[lints]
+workspace = true
+
 [dependencies]
 axum = { version = "0.6.20", default-features = false, features = ["query"] }
 humantime = "2.1.0"

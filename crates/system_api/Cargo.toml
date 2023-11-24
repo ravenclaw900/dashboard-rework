@@ -3,6 +3,9 @@ name = "system_api"
 version = "0.7.0"
 edition = "2021"
 
+[lints]
+workspace = true
+
 [dependencies]
 axum = { version = "0.6.20", default-features = false, features = ["query"] }
 serde = { version = "1.0.192", features = ["derive"] }
