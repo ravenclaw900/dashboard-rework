@@ -1,6 +1,7 @@
 use config::CONFIG;
-use ct_codecs::{Base64UrlSafeNoPadding, Decoder, Encoder};
+use ct_codecs::{Base64UrlSafeNoPadding, Decoder, Encoder, Hex};
 use ed25519_compact::{Noise, PublicKey, SecretKey, Signature};
+use ring::digest::{digest, SHA512};
 use serde::{Deserialize, Serialize};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
@@ -11,6 +12,18 @@ struct Claims {
     nbf: u64,
 }
 
+#[must_use]
+pub fn test_password(pass: &str) -> bool {
+    let hashed_pass = digest(&SHA512, pass.as_bytes());
+    let expected_pass = Hex::decode_to_vec(&CONFIG.auth.hash, None).unwrap();
+
+    if hashed_pass.as_ref() == expected_pass {
+        return true;
+    }
+    false
+}
+
+#[must_use]
 pub fn create_token() -> String {
     let key_file =
         std::fs::read(&CONFIG.auth.privkey_path).expect("failed to read secret key file");
@@ -34,18 +47,34 @@ pub fn create_token() -> String {
     let encoded_claims = Base64UrlSafeNoPadding::encode_to_string(&serialized_claims).unwrap();
     let encoded_sig = Base64UrlSafeNoPadding::encode_to_string(sig).unwrap();
 
-    format!("{encoded_claims}.{encoded_sig}")
+    format!("dpdashboard.{encoded_claims}.{encoded_sig}")
 }
 
+#[must_use]
 pub fn verify_token(token: &str) -> bool {
     let key_file = std::fs::read(&CONFIG.auth.pubkey_path).expect("failed to read public key file");
     let key = PublicKey::from_der(&key_file).expect("failed to parse public key");
 
-    let (encoded_claims, encoded_sig) = token.split_once('.').unwrap();
+    // Until key is verified, anything that can fail indicates a possible bad/malformed key
+    let token_parts = token.split('.').collect::<Vec<_>>();
+    let [ident, encoded_claims, encoded_sig] = *token_parts.as_slice() else {
+        return false;
+    };
 
-    let serialized_claims = Base64UrlSafeNoPadding::decode_to_vec(encoded_claims, None).unwrap();
-    let sig = Base64UrlSafeNoPadding::decode_to_vec(encoded_sig, None).unwrap();
-    let sig = Signature::from_slice(&sig).unwrap();
+    if ident != "dpdashboard" {
+        return false;
+    }
+
+    let Ok(serialized_claims) = Base64UrlSafeNoPadding::decode_to_vec(encoded_claims, None) else {
+        return false;
+    };
+    let Ok(sig) = Base64UrlSafeNoPadding::decode_to_vec(encoded_sig, None) else {
+        return false;
+    };
+
+    let Ok(sig) = Signature::from_slice(&sig) else {
+        return false;
+    };
 
     if key.verify(&serialized_claims, &sig).is_err() {
         return false;

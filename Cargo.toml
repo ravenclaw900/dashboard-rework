@@ -1,10 +1,12 @@
 [workspace]
-members = ["crates/sysdata", "crates/server", "crates/frontend", "crates/system_api", "crates/config", "crates/auth"]
+members = ["crates/sysdata", "crates/server", "crates/frontend", "crates/config", "crates/auth"]
 resolver = "2"
 
 [workspace.lints.clippy]
 pedantic = "warn"
 nursery = "warn"
+module_name_repetitions = "allow"
+unused_async = "allow"
 
 [workspace.lints.rust]
 rust_2018_idioms = "warn"

@@ -7,7 +7,10 @@ use tokio::sync::oneshot;
 use super::layout;
 
 pub async fn system_page() -> Markup {
-    layout::main_template("/api/system")
+    let main = html! {
+        main hx-get="/api/system" hx-trigger="load" hx-swap="outerHTML" {}
+    };
+    layout::main_template(main)
 }
 
 pub async fn system_api(State(tx): State<RequestTx>) -> Markup {

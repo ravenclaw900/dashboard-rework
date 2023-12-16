@@ -38,16 +38,19 @@ impl Column {
 }
 
 pub async fn process_page() -> Markup {
-    layout::main_template("/api/process?sort=pid&reverse=false")
+    let main = html! {
+        main hx-get="/api/process?sort=pid&reverse=false" hx-trigger="load" hx-swap="outerHTML" {}
+    };
+    layout::main_template(main)
 }
 
-pub async fn process_api(State(tx): State<RequestTx>, query: Query<ProcessQuery>) -> Markup {
+pub async fn process_api(State(tx): State<RequestTx>, Query(query): Query<ProcessQuery>) -> Markup {
     let (resp_tx, resp_rx) = oneshot::channel();
     tx.send(Request::Process(resp_tx)).await.unwrap();
 
     let mut resp = resp_rx.await.unwrap();
 
-    let sort = &query.sort;
+    let sort = query.sort;
 
     resp.sort_unstable_by(|a, b| {
         match sort {

@@ -1,6 +1,6 @@
 use maud::{html, Markup, DOCTYPE};
 
-pub fn main_template(endpoint: &str) -> Markup {
+pub fn main_template(main: Markup) -> Markup {
     html! {
         (DOCTYPE)
 
@@ -14,7 +14,7 @@ pub fn main_template(endpoint: &str) -> Markup {
 
             (header())
 
-            main hx-get=(endpoint) hx-trigger="load" hx-swap="outerHTML" {}
+            (main)
 
             (footer())
 
@@ -52,6 +52,10 @@ fn nav_menu() -> Markup {
                 "DietPi Dashboard"
             }
             ul {
+                a href="/login" {
+                    iconify-icon icon="fa6-solid:arrow-right-to-bracket" {}
+                    "Login"
+                }
                 a href="/system" {
                     iconify-icon icon="fa6-solid:database" {}
                     "System"

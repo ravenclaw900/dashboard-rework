@@ -18,6 +18,7 @@ pub struct ConfigAuth {
     pub enable_auth: bool,
     pub privkey_path: String,
     pub pubkey_path: String,
+    pub hash: String,
     pub expiry: u64,
 }
 

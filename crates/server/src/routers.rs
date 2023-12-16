@@ -4,6 +4,7 @@ use axum::{
     Router,
 };
 
+use super::api;
 use super::static_files;
 
 fn static_router() -> Router {
@@ -20,7 +21,8 @@ fn api_router() -> Router {
     Router::new()
         .route("/system", get(frontend::system_api))
         .route("/process", get(frontend::process_api))
-        .route("/process/:pid", post(system_api::process_signal))
+        .route("/process/:pid", post(api::process_signal))
+        .route("/login", post(api::login))
         .with_state(tx)
 }
 
@@ -29,6 +31,7 @@ fn page_router() -> Router {
         .route("/", get(|| async { Redirect::permanent("/system") }))
         .route("/system", get(frontend::system_page))
         .route("/process", get(frontend::process_page))
+        .route("/login", get(frontend::login_page))
 }
 
 pub fn router() -> Router {

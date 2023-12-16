@@ -32,6 +32,7 @@ fn migrate_0_to_1(toml: &Table) -> Document {
     auth["enable_auth"] = value(false);
     auth["privkey_path"] = value("");
     auth["pubkey_path"] = value("");
+    auth["hash"] = value("");
     auth["expiry"] = value(3600);
     new_toml["auth"] = auth;
 

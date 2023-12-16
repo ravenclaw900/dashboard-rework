@@ -36,6 +36,7 @@ dependencies = [
  "config",
  "ct-codecs",
  "ed25519-compact",
+ "ring",
  "serde",
 ]
 
@@ -584,9 +585,9 @@ checksum = "2b37805477eee599a61753230f511ae94d737f69b536e468e294723ad5f1b75f"
 
 [[package]]
 name = "ring"
-version = "0.17.5"
+version = "0.17.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fb0205304757e5d899b9c2e448b867ffd03ae7f988002e47cd24954391394d0b"
+checksum = "688c63d65483050968b2a8937f7995f443e27041a0f7700aa59b0822aedebb74"
 dependencies = [
  "cc",
  "getrandom",
@@ -705,8 +706,8 @@ dependencies = [
  "config",
  "flexible-hyper-server-tls",
  "frontend",
+ "serde",
  "sysdata",
- "system_api",
  "tokio",
 ]
 
@@ -795,16 +796,6 @@ dependencies = [
  "ntapi",
  "once_cell",
  "winapi",
-]
-
-[[package]]
-name = "system_api"
-version = "0.7.0"
-dependencies = [
- "axum",
- "serde",
- "sysdata",
- "tokio",
 ]
 
 [[package]]

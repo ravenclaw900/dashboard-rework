@@ -10,4 +10,5 @@ key_path = ""
 enable_auth = false
 privkey_path = ""
 pubkey_path = ""
+hash = ""
 expiry = 3600
