@@ -1,6 +1,6 @@
 use maud::{html, Markup, DOCTYPE};
 
-pub fn main_template(main: Markup) -> Markup {
+pub fn main_template(main: &Markup) -> Markup {
     html! {
         (DOCTYPE)
 

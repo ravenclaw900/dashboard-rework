@@ -42,10 +42,9 @@ fn config() -> Config {
         let migration_done = migrate::migrate(&mut toml);
         if migration_done {
             break;
-        } else {
-            std::fs::write(&cfgpath, toml.to_string().as_bytes())
-                .expect("failed to migrate config file");
         }
+        std::fs::write(&cfgpath, toml.to_string().as_bytes())
+            .expect("failed to migrate config file");
     }
 
     toml_edit::de::from_document(toml).expect("failed to parse config file")

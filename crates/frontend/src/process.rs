@@ -25,7 +25,7 @@ enum Column {
 }
 
 impl Column {
-    fn as_str(&self) -> &'static str {
+    const fn as_str(&self) -> &'static str {
         match self {
             Self::Pid => "pid",
             Self::Name => "name",
@@ -41,7 +41,7 @@ pub async fn process_page() -> Markup {
     let main = html! {
         main hx-get="/api/process?sort=pid&reverse=false" hx-trigger="load" hx-swap="outerHTML" {}
     };
-    layout::main_template(main)
+    layout::main_template(&main)
 }
 
 pub async fn process_api(State(tx): State<RequestTx>, Query(query): Query<ProcessQuery>) -> Markup {
@@ -76,7 +76,7 @@ pub async fn process_api(State(tx): State<RequestTx>, Query(query): Query<Proces
                             th {
                                 button hx-get="/api/process?sort=pid" hx-target="main" {
                                     "PID "
-                                    @if let Column::Pid = sort {
+                                    @if matches!(sort, Column::Pid) {
                                         iconify-icon icon="fa6-solid:sort" {}
                                     }
                                 }
@@ -84,7 +84,7 @@ pub async fn process_api(State(tx): State<RequestTx>, Query(query): Query<Proces
                             th {
                                 button hx-get="/api/process?sort=name" hx-target="main" {
                                     "Name "
-                                    @if let Column::Name = sort {
+                                    @if matches!(sort, Column::Name) {
                                         iconify-icon icon="fa6-solid:sort" {}
                                     }
                                 }
@@ -92,7 +92,7 @@ pub async fn process_api(State(tx): State<RequestTx>, Query(query): Query<Proces
                             th {
                                 button hx-get="/api/process?sort=status" hx-target="main" {
                                     "Status "
-                                    @if let Column::Status = sort {
+                                    @if matches!(sort, Column::Status) {
                                         iconify-icon icon="fa6-solid:sort" {}
                                     }
                                 }
@@ -100,7 +100,7 @@ pub async fn process_api(State(tx): State<RequestTx>, Query(query): Query<Proces
                             th {
                                 button hx-get="/api/process?sort=cpu" hx-target="main" {
                                     "CPU usage "
-                                    @if let Column::Cpu = sort {
+                                    @if matches!(sort, Column::Cpu) {
                                         iconify-icon icon="fa6-solid:sort" {}
                                     }
                                 }
@@ -108,7 +108,7 @@ pub async fn process_api(State(tx): State<RequestTx>, Query(query): Query<Proces
                             th {
                                 button hx-get="/api/process?sort=mem" hx-target="main" {
                                     "Memory usage "
-                                    @if let Column::Mem = sort {
+                                    @if matches!(sort, Column::Mem) {
                                         iconify-icon icon="fa6-solid:sort" {}
                                     }
                                 }
@@ -116,7 +116,7 @@ pub async fn process_api(State(tx): State<RequestTx>, Query(query): Query<Proces
                             th {
                                 button hx-get="/api/process?sort=runtime" hx-target="main" {
                                     "Runtime "
-                                    @if let Column::Runtime = sort {
+                                    @if matches!(sort, Column::Runtime) {
                                         iconify-icon icon="fa6-solid:sort" {}
                                     }
                                 }

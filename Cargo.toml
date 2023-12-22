@@ -5,8 +5,10 @@ resolver = "2"
 [workspace.lints.clippy]
 pedantic = "warn"
 nursery = "warn"
-module_name_repetitions = "allow"
-unused_async = "allow"
+# Creates lots of false positives because axum requires handlers to be async
+unused_async = { level = "allow", priority = 1 }
+module_name_repetitions = { level = "allow", priority = 1 }
+missing_panics_doc = { level = "allow", priority = 1 }
 
 [workspace.lints.rust]
 rust_2018_idioms = "warn"

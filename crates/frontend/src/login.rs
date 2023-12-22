@@ -19,5 +19,5 @@ pub async fn login_page(RawQuery(query): RawQuery) -> Markup {
         }
     };
 
-    layout::main_template(main)
+    layout::main_template(&main)
 }
