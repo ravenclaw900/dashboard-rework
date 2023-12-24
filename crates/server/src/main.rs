@@ -5,6 +5,7 @@ use tokio::net::TcpListener;
 use config::CONFIG;
 
 mod api;
+mod middleware;
 mod routers;
 mod static_files;
 
