@@ -8,7 +8,14 @@ use super::layout;
 
 pub async fn system_page() -> Markup {
     let main = html! {
-        main hx-get="/api/system" hx-trigger="load" hx-swap="outerHTML" {}
+        main {
+            section {
+                header {
+                    "System Statistics"
+                }
+                div hx-get="/api/system" hx-trigger="load, every 2s" {}
+            }
+        }
     };
     layout::main_template(&main)
 }
@@ -23,22 +30,14 @@ pub async fn system_api(State(tx): State<RequestTx>) -> Markup {
     let pretty_ram_total = pretty_bytes_binary(resp.ram.total, Some(2));
 
     html! {
-        main hx-get="/api/system" hx-trigger="every 2s" hx-swap="outerHTML" {
-            section {
-                header {
-                    "System Statistics"
-                }
-
-                "CPU usage: " (resp.cpu) "%"
-                div .meter-container {
-                    div #cpu-meter style={"width:" (resp.cpu) "%"} {}
-                }
-                br;
-                "RAM usage: " (pretty_ram_used) " / " (pretty_ram_total)
-                div .meter-container {
-                    div #ram-meter style={"width:" (resp.ram.percent) "%"} {}
-                }
-            }
+        "CPU usage: " (resp.cpu) "%"
+        div .meter-container {
+            div #cpu-meter style={"width:" (resp.cpu) "%"} {}
+        }
+        br;
+        "RAM usage: " (pretty_ram_used) " / " (pretty_ram_total)
+        div .meter-container {
+            div #ram-meter style={"width:" (resp.ram.percent) "%"} {}
         }
     }
 }

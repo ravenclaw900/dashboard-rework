@@ -13,7 +13,7 @@ pub struct ProcessQuery {
     sort: Column,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
 enum Column {
     Pid,
@@ -39,7 +39,14 @@ impl Column {
 
 pub async fn process_page() -> Markup {
     let main = html! {
-        main hx-get="/api/process?sort=pid&reverse=false" hx-trigger="load" hx-swap="outerHTML" {}
+        main {
+            section {
+                header {
+                    "Processes"
+                }
+                table hx-get="/api/process?sort=pid" hx-trigger="load" hx-swap="outerHTML" {}
+            }
+        }
     };
     layout::main_template(&main)
 }
@@ -64,106 +71,72 @@ pub async fn process_api(State(tx): State<RequestTx>, Query(query): Query<Proces
         }
     });
 
+    let headers = [
+        ("PID", Column::Pid),
+        ("Name", Column::Name),
+        ("Status", Column::Status),
+        ("CPU Usage", Column::Cpu),
+        ("Memory Usage", Column::Mem),
+        ("Runtime", Column::Runtime),
+    ];
+
     html! {
-        main hx-get={"/api/process?sort=" (sort.as_str())} hx-trigger="every 2s" hx-swap="outerHTML" {
-            section {
-                header {
-                    "Processes"
-                }
-                table {
-                    thead {
-                        tr {
-                            th {
-                                button hx-get="/api/process?sort=pid" hx-target="main" {
-                                    "PID "
-                                    @if matches!(sort, Column::Pid) {
-                                        iconify-icon icon="fa6-solid:sort" {}
-                                    }
+        // Use 'load polling' technique
+        table hx-get={"/api/process?sort=" (sort.as_str())} hx-trigger="load delay:2s" hx-swap="outerHTML" hx-target="this" {
+            thead {
+                tr {
+                    @for header in headers {
+                        th {
+                            button hx-get={"/api/process?sort=" (header.1.as_str())} {
+                                // Space to add some space between header and sort icon
+                                (header.0) " "
+                                @if sort == header.1 {
+                                    iconify-icon icon="fa6-solid:sort" {}
                                 }
-                            }
-                            th {
-                                button hx-get="/api/process?sort=name" hx-target="main" {
-                                    "Name "
-                                    @if matches!(sort, Column::Name) {
-                                        iconify-icon icon="fa6-solid:sort" {}
-                                    }
-                                }
-                            }
-                            th {
-                                button hx-get="/api/process?sort=status" hx-target="main" {
-                                    "Status "
-                                    @if matches!(sort, Column::Status) {
-                                        iconify-icon icon="fa6-solid:sort" {}
-                                    }
-                                }
-                            }
-                            th {
-                                button hx-get="/api/process?sort=cpu" hx-target="main" {
-                                    "CPU usage "
-                                    @if matches!(sort, Column::Cpu) {
-                                        iconify-icon icon="fa6-solid:sort" {}
-                                    }
-                                }
-                            }
-                            th {
-                                button hx-get="/api/process?sort=mem" hx-target="main" {
-                                    "Memory usage "
-                                    @if matches!(sort, Column::Mem) {
-                                        iconify-icon icon="fa6-solid:sort" {}
-                                    }
-                                }
-                            }
-                            th {
-                                button hx-get="/api/process?sort=runtime" hx-target="main" {
-                                    "Runtime "
-                                    @if matches!(sort, Column::Runtime) {
-                                        iconify-icon icon="fa6-solid:sort" {}
-                                    }
-                                }
-                            }
-                            th {
-                                "Actions"
                             }
                         }
                     }
-                    @for proc in resp {
-                        tr {
-                            td {
-                                (proc.pid)
+                    th {
+                        "Actions"
+                    }
+                }
+            }
+            @for proc in resp {
+                tr {
+                    td {
+                        (proc.pid)
+                    }
+                    td {
+                        (proc.name)
+                    }
+                    td {
+                        (proc.status)
+                    }
+                    td {
+                        (proc.cpu)"%"
+                    }
+                    td {
+                        @let pretty_memory = pretty_bytes_binary(proc.mem, Some(2));
+                        (pretty_memory)
+                    }
+                    td {
+                        @let pretty_runtime = format_duration(proc.runtime);
+                        (pretty_runtime)
+                    }
+                    td ."actions-cell" {
+                        button title="Terminate" hx-post={"/api/process/" (proc.pid) "?signal=term"} hx-swap="none" {
+                            iconify-icon icon="fa6-solid:ban" {}
+                        }
+                        button title="Kill" hx-post={"/api/process/" (proc.pid) "?signal=kill"} hx-swap="none" {
+                            iconify-icon icon="fa6-solid:skull" {}
+                        }
+                        @if proc.status == "Stopped" {
+                            button title="Resume" hx-post={"/api/process/" (proc.pid) "?signal=resume"} hx-swap="none" {
+                                iconify-icon icon="fa6-solid:play" {}
                             }
-                            td {
-                                (proc.name)
-                            }
-                            td {
-                                (proc.status)
-                            }
-                            td {
-                                (proc.cpu)"%"
-                            }
-                            td {
-                                @let pretty_memory = pretty_bytes_binary(proc.mem, Some(2));
-                                (pretty_memory)
-                            }
-                            td {
-                                @let pretty_runtime = format_duration(proc.runtime);
-                                (pretty_runtime)
-                            }
-                            td ."actions-cell" {
-                                button title="Terminate" hx-post={"/api/process/" (proc.pid) "?signal=term"} hx-swap="none" {
-                                    iconify-icon icon="fa6-solid:ban" {}
-                                }
-                                button title="Kill" hx-post={"/api/process/" (proc.pid) "?signal=kill"} hx-swap="none" {
-                                    iconify-icon icon="fa6-solid:skull" {}
-                                }
-                                @if proc.status == "Stopped" {
-                                    button title="Resume" hx-post={"/api/process/" (proc.pid) "?signal=resume"} hx-swap="none" {
-                                        iconify-icon icon="fa6-solid:play" {}
-                                    }
-                                } @else {
-                                    button title="Stop" hx-post={"/api/process/" (proc.pid) "?signal=stop"} hx-swap="none" {
-                                        iconify-icon icon="fa6-solid:pause" {}
-                                    }
-                                }
+                        } @else {
+                            button title="Stop" hx-post={"/api/process/" (proc.pid) "?signal=stop"} hx-swap="none" {
+                                iconify-icon icon="fa6-solid:pause" {}
                             }
                         }
                     }
