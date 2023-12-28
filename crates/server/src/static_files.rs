@@ -15,7 +15,6 @@ macro_rules! vendored_file {
 }
 
 vendored_file!(htmx, "htmx-1.9.10.js", JS_CONTENT_HEADER);
-vendored_file!(iconify, "iconify-1.0.8.js", JS_CONTENT_HEADER);
 
 vendored_file!(css_vars, "vars.css", CSS_CONTENT_HEADER);
 vendored_file!(index_css, "index.css", CSS_CONTENT_HEADER);

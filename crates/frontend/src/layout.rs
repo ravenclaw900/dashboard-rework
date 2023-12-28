@@ -1,4 +1,4 @@
-use maud::{html, Markup, DOCTYPE};
+use maud::{html, Markup, PreEscaped, DOCTYPE};
 
 pub fn main_template(main: &Markup) -> Markup {
     html! {
@@ -19,7 +19,6 @@ pub fn main_template(main: &Markup) -> Markup {
             (footer())
 
             script src="/static/htmx.js" {}
-            script src="/static/iconify.js" {}
         }
     }
 }
@@ -39,7 +38,7 @@ fn footer() -> Markup {
         footer {
             "DietPi Dashboard v"(current_version)" by ravenclaw900"
             a href="https://github.com/ravenclaw900/dashboard-rework" target="_blank" {
-                iconify-icon icon="cib:github" style="font-size:var(--font-size-4);color:black;" {}
+                (PreEscaped(iconify::svg!("cib:github", width="var(--font-size-4)", color="black")))
             }
         }
     }
@@ -53,15 +52,15 @@ fn nav_menu() -> Markup {
             }
             ul {
                 a href="/login" {
-                    iconify-icon icon="fa6-solid:arrow-right-to-bracket" {}
+                    (PreEscaped(iconify::svg!("fa6-solid:arrow-right-to-bracket")))
                     "Login"
                 }
                 a href="/system" {
-                    iconify-icon icon="fa6-solid:database" {}
+                    (PreEscaped(iconify::svg!("fa6-solid:database")))
                     "System"
                 }
                 a href="/process" {
-                    iconify-icon icon="fa6-solid:microchip" {}
+                    (PreEscaped(iconify::svg!("fa6-solid:microchip")))
                     "Processes"
                 }
             }

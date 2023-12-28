@@ -1,6 +1,6 @@
 use axum::extract::{Query, State};
 use humantime::format_duration;
-use maud::{html, Markup};
+use maud::{html, Markup, PreEscaped};
 use pretty_bytes_typed::pretty_bytes_binary;
 use serde::Deserialize;
 use sysdata::{Request, RequestTx};
@@ -51,6 +51,8 @@ pub async fn process_page() -> Markup {
     layout::main_template(&main)
 }
 
+// Clippy seems to get confused by the macro
+#[allow(clippy::branches_sharing_code)]
 pub async fn process_api(State(tx): State<RequestTx>, Query(query): Query<ProcessQuery>) -> Markup {
     let (resp_tx, resp_rx) = oneshot::channel();
     tx.send(Request::Process(resp_tx)).await.unwrap();
@@ -91,7 +93,7 @@ pub async fn process_api(State(tx): State<RequestTx>, Query(query): Query<Proces
                                 // Space to add some space between header and sort icon
                                 (header.0) " "
                                 @if sort == header.1 {
-                                    iconify-icon icon="fa6-solid:sort" {}
+                                    (PreEscaped(iconify::svg!("fa6-solid:sort")))
                                 }
                             }
                         }
@@ -125,18 +127,18 @@ pub async fn process_api(State(tx): State<RequestTx>, Query(query): Query<Proces
                     }
                     td ."actions-cell" {
                         button title="Terminate" hx-post={"/api/process/" (proc.pid) "?signal=term"} hx-swap="none" {
-                            iconify-icon icon="fa6-solid:ban" {}
+                            (PreEscaped(iconify::svg!("fa6-solid:ban")))
                         }
                         button title="Kill" hx-post={"/api/process/" (proc.pid) "?signal=kill"} hx-swap="none" {
-                            iconify-icon icon="fa6-solid:skull" {}
+                            (PreEscaped(iconify::svg!("fa6-solid:skull")))
                         }
                         @if proc.status == "Stopped" {
                             button title="Resume" hx-post={"/api/process/" (proc.pid) "?signal=resume"} hx-swap="none" {
-                                iconify-icon icon="fa6-solid:play" {}
+                                (PreEscaped(iconify::svg!("fa6-solid:play")))
                             }
                         } @else {
                             button title="Stop" hx-post={"/api/process/" (proc.pid) "?signal=stop"} hx-swap="none" {
-                                iconify-icon icon="fa6-solid:pause" {}
+                                (PreEscaped(iconify::svg!("fa6-solid:pause")))
                             }
                         }
                     }

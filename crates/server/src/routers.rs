@@ -13,7 +13,6 @@ use super::static_files;
 fn static_router() -> Router {
     Router::new()
         .route("/htmx.js", get(static_files::htmx))
-        .route("/iconify.js", get(static_files::iconify))
         .route("/index.css", get(static_files::index_css))
         .route("/vars.css", get(static_files::css_vars))
 }
