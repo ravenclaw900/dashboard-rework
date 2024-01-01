@@ -1,4 +1,4 @@
-use sysinfo::{System, SystemExt};
+use sysinfo::System;
 use tokio::sync::{mpsc, oneshot};
 
 use super::actions;

@@ -1,4 +1,5 @@
-use flexible_hyper_server_tls::{tlsconfig, HyperHttpOrHttpsAcceptor};
+use flexible_hyper_server_tls::{rustls_helpers, AcceptorBuilder};
+use hyper_util::service::TowerToHyperService;
 use std::net::{Ipv6Addr, SocketAddr};
 use tokio::net::TcpListener;
 
@@ -17,27 +18,21 @@ async fn main() {
         .await
         .expect("failed to bind to port");
 
-    let acceptor = if CONFIG.tls.enable_tls {
-        let tls_acceptor = tlsconfig::get_tlsacceptor_from_files(
-            &CONFIG.tls.cert_path,
-            &CONFIG.tls.key_path,
-            tlsconfig::HttpProtocol::Http1,
-        )
-        .expect("failed to read TLS files");
+    let builder = AcceptorBuilder::new(listener);
 
-        HyperHttpOrHttpsAcceptor::new_https(
-            listener,
-            tls_acceptor,
-            std::time::Duration::from_secs(10),
-        )
+    let mut acceptor = if CONFIG.tls.enable_tls {
+        let tls_acceptor =
+            rustls_helpers::get_tlsacceptor_from_files(&CONFIG.tls.cert_path, &CONFIG.tls.key_path)
+                .expect("failed to read TLS files");
+
+        builder.https(tls_acceptor).build()
     } else {
-        HyperHttpOrHttpsAcceptor::new_http(listener)
+        builder.build()
     };
 
     let router = routers::router();
 
-    axum::Server::builder(acceptor)
-        .serve(router.into_make_service())
-        .await
-        .expect("failed to start server");
+    let service = TowerToHyperService::new(router);
+
+    acceptor.serve(service).await;
 }

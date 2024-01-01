@@ -1,4 +1,4 @@
-use sysinfo::{CpuExt, CpuRefreshKind, ProcessExt, System, SystemExt};
+use sysinfo::{CpuRefreshKind, System};
 
 use super::types;
 
@@ -49,13 +49,9 @@ pub fn process(sys: &mut System) -> Vec<types::ProcessData> {
     let process_map = sys.processes();
     let mut processes = Vec::with_capacity(process_map.len());
 
-    for proc in process_map.values() {
-        // Don't put kernel threads on the list
-        // (all kernel threads have an empty cmdline)
-        if proc.cmd().is_empty() {
-            continue;
-        }
-
+    // Don't put kernel threads on the list
+    // (all kernel threads have an empty cmdline)
+    for proc in process_map.values().filter(|x| !x.cmd().is_empty()) {
         processes.push(types::ProcessData {
             pid: proc.pid().into(),
             mem: proc.memory(),

@@ -12,10 +12,11 @@ workspace = true
 
 [dependencies]
 auth = { version = "0.7.0", path = "../auth" }
-axum = { version = "0.6.20", default-features = false, features = ["http1", "tokio"] }
+axum = { version = "0.7.3", default-features = false}
 config = { path = "../config" }
-flexible-hyper-server-tls = "0.1.1"
+flexible-hyper-server-tls = "0.2.0"
 frontend = { path = "../frontend" }
+hyper-util = { version = "0.1.2", features = ["service", "http1", "server"] }
 serde = { version = "1.0.193", features = ["derive"] }
 sysdata = { path = "../sysdata" }
-tokio = { version = "1.34.0", features = ["rt", "macros"] }
+tokio = { version = "1.35.1", features = ["rt", "macros"] }

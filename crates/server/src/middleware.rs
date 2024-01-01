@@ -1,4 +1,5 @@
 use axum::{
+    body::Body,
     http::{HeaderMap, Request},
     middleware::Next,
     response::{IntoResponse, Redirect, Response},
@@ -20,7 +21,7 @@ fn validate_token_cookie(headers: &HeaderMap) -> bool {
     auth::verify_token(token_cookie.1)
 }
 
-pub async fn login_middleware<B: Send>(req: Request<B>, next: Next<B>) -> Response {
+pub async fn login_middleware(req: Request<Body>, next: Next) -> Response {
     if validate_token_cookie(req.headers()) {
         // Generate response from other middleware/handler
         next.run(req).await
