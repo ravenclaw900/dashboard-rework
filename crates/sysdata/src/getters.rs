@@ -1,4 +1,4 @@
-use sysinfo::{CpuRefreshKind, System};
+use sysinfo::{CpuRefreshKind, ProcessRefreshKind, System};
 
 use super::types;
 
@@ -45,7 +45,12 @@ fn round_percent(val: f32) -> f32 {
 }
 
 pub fn process(sys: &mut System) -> Vec<types::ProcessData> {
-    sys.refresh_processes();
+    sys.refresh_processes_specifics(
+        ProcessRefreshKind::new()
+            .with_cpu()
+            .with_memory()
+            .with_cmd(sysinfo::UpdateKind::OnlyIfNotSet),
+    );
     let process_map = sys.processes();
     let mut processes = Vec::with_capacity(process_map.len());
 
