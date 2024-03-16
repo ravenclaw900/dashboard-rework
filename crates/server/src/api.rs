@@ -84,7 +84,7 @@ pub async fn terminal(ws: ws::WebSocketUpgrade) -> Response {
             }
         }
 
-        child.kill().await.unwrap();
-        // child.wait().await.unwrap();
+        let _ = child.kill().await;
+        let _ = child.wait().await;
     })
 }
