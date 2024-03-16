@@ -29,6 +29,9 @@ pub async fn system_api(State(tx): State<RequestTx>) -> Markup {
     let pretty_ram_used = pretty_bytes_binary(resp.ram.used, Some(2));
     let pretty_ram_total = pretty_bytes_binary(resp.ram.total, Some(2));
 
+    let pretty_swap_used = pretty_bytes_binary(resp.swap.used, Some(2));
+    let pretty_swap_total = pretty_bytes_binary(resp.swap.total, Some(2));
+
     html! {
         "CPU usage: " (resp.cpu) "%"
         div .meter-container {
@@ -38,6 +41,11 @@ pub async fn system_api(State(tx): State<RequestTx>) -> Markup {
         "RAM usage: " (pretty_ram_used) " / " (pretty_ram_total)
         div .meter-container {
             div #ram-meter style={"width:" (resp.ram.percent) "%"} {}
+        }
+        br;
+        "Swap usage: " (pretty_swap_used) " / " (pretty_swap_total)
+        div .meter-container {
+            div #swap-meter style={"width:" (resp.swap.percent) "%"} {}
         }
     }
 }

@@ -144,6 +144,10 @@ table {
   background-color: var(--red-6);
 }
 
+#swap-meter {
+  background-color: var(--blue-6);
+}
+
 /* CSS for process page */
 .actions-cell {
   display: flex;

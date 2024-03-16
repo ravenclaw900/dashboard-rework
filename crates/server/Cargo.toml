@@ -14,7 +14,7 @@ workspace = true
 auth = { version = "0.7.0", path = "../auth" }
 axum = { version = "0.7.4", default-features = false, features = ["ws"] }
 config = { path = "../config" }
-flexible-hyper-server-tls = "0.2.1"
+flexible-hyper-server-tls = "0.3.0"
 frontend = { path = "../frontend" }
 hyper-util = { version = "0.1.2", features = ["service", "http1", "server"] }
 pty-process = { version = "0.4.0", features = ["async"] }

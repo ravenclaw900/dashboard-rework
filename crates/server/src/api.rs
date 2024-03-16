@@ -54,9 +54,10 @@ pub async fn terminal(ws: ws::WebSocketUpgrade) -> Response {
 
         loop {
             tokio::select! {
-                num_read = pty.read(&mut data) => {
-                    let num_read = num_read.unwrap();
-                    socket.send(ws::Message::Binary(data[..num_read].to_vec())).await.unwrap();
+                Ok(num_read) = pty.read(&mut data) => {
+                    if socket.send(ws::Message::Binary(data[..num_read].to_vec())).await.is_err() {
+                        break;
+                    }
                 }
                 res = socket.recv() => {
                     match res {
