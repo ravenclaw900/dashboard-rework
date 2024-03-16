@@ -4,6 +4,7 @@ use axum::{
     response::{IntoResponse, Redirect, Response},
 };
 use config::CONFIG;
+use pty_process::Size;
 use serde::Deserialize;
 use sysdata::{Request, RequestTx};
 
@@ -60,17 +61,30 @@ pub async fn terminal(ws: ws::WebSocketUpgrade) -> Response {
                     }
                 }
                 res = socket.recv() => {
-                    match res {
-                        Some(Ok(msg)) => if matches!(msg, ws::Message::Binary(_) | ws::Message::Text(_)) {
+                    let Some(Ok(msg)) = res else {
+                        break;
+                    };
+                    match msg {
+                        ws::Message::Text(size) if size.starts_with("size") => {
+                            let size = size.trim_start_matches("size");
+                            let Some((cols, rows)) = size
+                                .split_once(',')
+                                .and_then(|(cols, rows)| Some((cols.parse().ok()?, rows.parse().ok()?)))
+                            else {
+                                continue;
+                            };
+                            pty.resize(Size::new(rows, cols)).unwrap();
+                        }
+                        ws::Message::Binary(_) | ws::Message::Text(_) => {
                             pty.write_all(&msg.into_data()).await.unwrap();
-                        },
-                        _ => break,
+                        }
+                        _ => {}
                     }
                 }
             }
         }
 
         child.kill().await.unwrap();
-        child.wait().await.unwrap();
+        // child.wait().await.unwrap();
     })
 }

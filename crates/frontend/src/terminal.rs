@@ -12,10 +12,11 @@ pub async fn terminal_page() -> Markup {
     layout::main_template(&Document {
         markup: main,
         addl_scripts: Some(&[
-            "/static/xterm.js",
-            "/static/xterm-addon-attach.js",
-            "/static/terminal.js",
+            "xterm.js",
+            "xterm-addon-attach.js",
+            "xterm-addon-fit.js",
+            "terminal.js",
         ]),
-        addl_css: Some(&["/static/xterm.css"]),
+        addl_css: Some(&["xterm.css"]),
     })
 }

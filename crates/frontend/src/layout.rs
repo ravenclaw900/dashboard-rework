@@ -29,7 +29,7 @@ pub fn main_template(doc: &Document) -> Markup {
 
                 @if let Some(styles) = doc.addl_css {
                     @for css in styles {
-                        link rel="stylesheet" href=(css);
+                        link rel="stylesheet" href={"/static/" (css)};
                     }
                 }
 
@@ -37,7 +37,7 @@ pub fn main_template(doc: &Document) -> Markup {
 
                 @if let Some(scripts) = doc.addl_scripts {
                     @for script in scripts {
-                        script defer src=(script) {}
+                        script defer src={"/static/" (script)} {}
                     }
                 }
             }

@@ -19,6 +19,7 @@ fn static_router() -> Router {
             "/xterm-addon-attach.js",
             get(static_files::xterm_addon_attach),
         )
+        .route("/xterm-addon-fit.js", get(static_files::xterm_addon_fit))
         .route("/terminal.js", get(static_files::terminal))
         .route("/index.css", get(static_files::index_css))
         .route("/vars.css", get(static_files::css_vars))

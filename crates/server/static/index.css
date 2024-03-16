@@ -158,3 +158,9 @@ table {
     font-size: var(--font-size-3);
   }
 }
+
+/* CSS for terminal page */
+#terminal {
+  /* Need to use 99% because 100% stops vertical resizing from working */
+  height: 99%;
+}

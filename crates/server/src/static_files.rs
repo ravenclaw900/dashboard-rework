@@ -27,6 +27,11 @@ vendored_file!(
     "xterm-addon-attach-0.9.0.js",
     JS_CONTENT_HEADER
 );
+vendored_file!(
+    xterm_addon_fit,
+    "xterm-addon-fit-0.8.0.js",
+    JS_CONTENT_HEADER
+);
 
 vendored_file!(css_vars, "vars.css", CSS_CONTENT_HEADER);
 vendored_file!(xterm_css, "xterm-5.3.0.css", CSS_CONTENT_HEADER);
