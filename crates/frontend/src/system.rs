@@ -4,7 +4,7 @@ use pretty_bytes_typed::pretty_bytes_binary;
 use sysdata::{Request, RequestTx};
 use tokio::sync::oneshot;
 
-use super::layout;
+use crate::layout;
 
 pub async fn system_page() -> Markup {
     let main = html! {
@@ -17,7 +17,7 @@ pub async fn system_page() -> Markup {
             }
         }
     };
-    layout::main_template(&main)
+    layout::main_template(&main.into())
 }
 
 pub async fn system_api(State(tx): State<RequestTx>) -> Markup {

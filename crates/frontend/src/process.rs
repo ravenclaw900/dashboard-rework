@@ -6,7 +6,7 @@ use serde::Deserialize;
 use sysdata::{Request, RequestTx};
 use tokio::sync::oneshot;
 
-use super::layout;
+use crate::layout;
 
 #[derive(Deserialize)]
 pub struct ProcessQuery {
@@ -48,7 +48,7 @@ pub async fn process_page() -> Markup {
             }
         }
     };
-    layout::main_template(&main)
+    layout::main_template(&main.into())
 }
 
 // Clippy seems to get confused by the macro

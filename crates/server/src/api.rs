@@ -1,5 +1,5 @@
 use axum::{
-    extract::{Path, Query, State},
+    extract::{ws, Path, Query, State},
     http::{header, StatusCode},
     response::{IntoResponse, Redirect, Response},
 };
@@ -39,4 +39,37 @@ pub async fn process_signal(
     tx.send(Request::ProcessSignal(pid, signal.0.signal))
         .await
         .unwrap();
+}
+
+pub async fn terminal(ws: ws::WebSocketUpgrade) -> Response {
+    use pty_process::{Command, Pty};
+    use tokio::io::{AsyncReadExt, AsyncWriteExt};
+
+    ws.on_upgrade(|mut socket| async move {
+        let mut pty = Pty::new().unwrap();
+        let mut cmd = Command::new("bash");
+        let mut child = cmd.spawn(&pty.pts().unwrap()).unwrap();
+
+        let mut data = [0_u8; 256];
+
+        loop {
+            tokio::select! {
+                num_read = pty.read(&mut data) => {
+                    let num_read = num_read.unwrap();
+                    socket.send(ws::Message::Binary(data[..num_read].to_vec())).await.unwrap();
+                }
+                res = socket.recv() => {
+                    match res {
+                        Some(Ok(msg)) => if matches!(msg, ws::Message::Binary(_) | ws::Message::Text(_)) {
+                            pty.write_all(&msg.into_data()).await.unwrap();
+                        },
+                        _ => break,
+                    }
+                }
+            }
+        }
+
+        child.kill().await.unwrap();
+        child.wait().await.unwrap();
+    })
 }

@@ -1,7 +1,7 @@
 use axum::extract::RawQuery;
 use maud::{html, Markup};
 
-use super::layout;
+use crate::layout;
 
 pub async fn login_page(RawQuery(query): RawQuery) -> Markup {
     let incorrect = query.is_some_and(|x| x.contains("incorrect"));
@@ -19,5 +19,5 @@ pub async fn login_page(RawQuery(query): RawQuery) -> Markup {
         }
     };
 
-    layout::main_template(&main)
+    layout::main_template(&main.into())
 }

@@ -15,6 +15,15 @@ macro_rules! vendored_file {
 }
 
 vendored_file!(htmx, "htmx-1.9.10.js", JS_CONTENT_HEADER);
+vendored_file!(xterm, "xterm-5.3.0.js", JS_CONTENT_HEADER);
+vendored_file!(
+    xterm_addon_attach,
+    "xterm-addon-attach-0.9.0.js",
+    JS_CONTENT_HEADER
+);
+
+vendored_file!(terminal, "terminal.js", JS_CONTENT_HEADER);
 
 vendored_file!(css_vars, "vars.css", CSS_CONTENT_HEADER);
+vendored_file!(xterm_css, "xterm-5.3.0.css", CSS_CONTENT_HEADER);
 vendored_file!(index_css, "index.css", CSS_CONTENT_HEADER);

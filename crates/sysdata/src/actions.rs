@@ -1,6 +1,6 @@
 use sysinfo::{Pid, Signal, System};
 
-use super::types;
+use crate::types;
 
 pub fn process_signal(sys: &mut System, pid: usize, signal: types::ProcessSignal) {
     let Some(process) = sys.process(Pid::from(pid)) else {

@@ -10,7 +10,7 @@ workspace = true
 axum = { version = "0.7.3", default-features = false, features = ["query"] }
 humantime = "2.1.0"
 iconify = "0.2.6"
-maud = { version = "0.25.0", features = ["axum"] }
+maud = { version = "0.26.0", features = ["axum"] }
 pretty-bytes-typed = "0.2.0"
 serde = { version = "1.0.192", features = ["derive"] }
 sysdata = { version = "0.7.0", path = "../sysdata" }

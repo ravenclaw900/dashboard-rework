@@ -2,7 +2,7 @@ use ephemeropt::EphemeralOption;
 use std::time::Duration;
 use sysinfo::System;
 
-use super::types;
+use crate::types;
 
 const CACHE_DURATION: Duration = Duration::from_millis(1500);
 

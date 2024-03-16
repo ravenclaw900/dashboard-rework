@@ -1,10 +1,10 @@
 use sysinfo::System;
 use tokio::sync::{mpsc, oneshot};
 
-use super::actions;
-use super::getters;
-use super::system_cache::{try_from_cache_or_init, SystemCache};
-use super::types;
+use crate::actions;
+use crate::getters;
+use crate::system_cache::{try_from_cache_or_init, SystemCache};
+use crate::types;
 
 pub type RequestTx = mpsc::Sender<Request>;
 

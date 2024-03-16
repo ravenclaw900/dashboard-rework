@@ -17,6 +17,3 @@ rust_2018_idioms = "warn"
 panic = "abort"
 lto = "fat"
 strip = true
-
-[patch.crates-io]
-maud = { git = "https://github.com/lambda-fairy/maud" }
