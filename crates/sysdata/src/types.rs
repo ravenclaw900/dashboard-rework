@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 #[derive(Clone)]
 pub struct UsageData {
     pub used: u64,
@@ -19,7 +21,7 @@ pub struct ProcessData {
     pub cpu: f32,
     pub status: String,
     pub name: String,
-    pub runtime: std::time::Duration,
+    pub runtime: Duration,
 }
 
 #[derive(serde::Deserialize)]
@@ -29,4 +31,16 @@ pub enum ProcessSignal {
     Term,
     Stop,
     Resume,
+}
+
+#[derive(Clone, Debug)]
+pub struct HostData {
+    pub hostname: String,
+    pub net_interface: String,
+    pub ip_addr: String,
+    pub dietpi_version: String,
+    pub system_version: String,
+    pub arch: String,
+    pub installed_packages: u32,
+    pub upgradable_packages: u32,
 }

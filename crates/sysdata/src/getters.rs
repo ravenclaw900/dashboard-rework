@@ -1,4 +1,4 @@
-use sysinfo::{CpuRefreshKind, ProcessRefreshKind, System};
+use sysinfo::{CpuRefreshKind, Networks, ProcessRefreshKind, System};
 
 use crate::types;
 
@@ -68,4 +68,69 @@ pub fn process(sys: &mut System) -> Vec<types::ProcessData> {
     }
 
     processes
+}
+
+pub async fn host() -> types::HostData {
+    use tokio::fs;
+    use tokio::process::Command;
+
+    let unknown = || "unknown".to_string();
+
+    let mut networks = Networks::new();
+    networks.refresh_list();
+
+    let net_data = networks.iter().find(|(k, _)| !k.contains("lo"));
+    let net_interface = net_data.map(|(k, _)| k.clone()).unwrap_or_else(unknown);
+    let ip_addr = net_data
+        .and_then(|(_, v)| v.ip_networks().first().map(|x| x.addr.to_string()))
+        .unwrap_or_else(unknown);
+
+    let hostname = System::host_name().unwrap_or_else(unknown);
+    let arch = System::cpu_arch().unwrap_or_else(unknown);
+    let system_version = System::os_version()
+        .map(|ver| format!("Debian {ver}"))
+        .unwrap_or_else(unknown);
+
+    let dietpi_version = {
+        let version_file = fs::read_to_string("/boot/dietpi/.version").await.ok();
+        // This monstrosity takes the first 3 lines of the version file, gets the numbers after the = sign,
+        // and places dots between them
+        // Unwrap is used because if the file exists, it should be formatted correctly
+        version_file
+            .map(|x| {
+                x.lines()
+                    .take(3)
+                    .map(|x| x.split_once('=').unwrap().1.to_string())
+                    .reduce(|acc, x| format!("{acc}.{x}"))
+                    .unwrap()
+            })
+            .unwrap_or_else(unknown)
+    };
+
+    // Counts number of newlines in a `dpkg --get-selections` command
+    let installed_packages = Command::new("dpkg")
+        .arg("--get-selections")
+        .output()
+        .await
+        .map(|x| x.stdout.iter().filter(|&&x| x == b'\n').count() as u32)
+        .unwrap_or(0);
+
+    // Number of upgradable packages is stored in this file
+    // Converts both results to Option to allow the use of and_then with different error types
+    let upgradable_packages = fs::read_to_string("/run/dietpi/.apt_updates")
+        .await
+        .ok()
+        .and_then(|x| x.parse::<u32>().ok())
+        .unwrap_or(0);
+
+    types::HostData {
+        hostname,
+        net_interface,
+        ip_addr,
+        dietpi_version,
+        system_version,
+        arch,
+        installed_packages,
+        upgradable_packages,
+    }
 }

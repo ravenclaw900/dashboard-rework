@@ -290,9 +290,9 @@ dependencies = [
 
 [[package]]
 name = "ephemeropt"
-version = "0.2.2"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b4b3ae16738761570761507e7d2219cf811de1742135d1d8be498a7b8210dbfe"
+checksum = "4c1ddca76720c92d14dc39fac8b1ad3aab6bf77503eb5f6d786576e5215858d9"
 
 [[package]]
 name = "equivalent"
@@ -1113,14 +1113,12 @@ dependencies = [
 [[package]]
 name = "sysinfo"
 version = "0.30.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0c385888ef380a852a16209afc8cfad22795dd8873d69c9a14d2e2088f118d18"
+source = "git+https://github.com/GuillaumeGomez/sysinfo?rev=622cd8a#622cd8a1b3a60983c15273e82bb9fdf9e9fb6177"
 dependencies = [
  "cfg-if",
  "core-foundation-sys",
  "libc",
  "ntapi",
- "once_cell",
  "windows",
 ]
 

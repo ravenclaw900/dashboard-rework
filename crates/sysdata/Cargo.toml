@@ -4,7 +4,8 @@ version = "0.7.0"
 edition = "2021"
 
 [dependencies]
-ephemeropt = "0.2.2"
+ephemeropt = "0.3.0"
 serde = { version = "1.0.192", features = ["derive"] }
-sysinfo = { version = "0.30.3", default-features = false }
+# sysinfo = { version = "0.30.7", default-features = false }
+sysinfo = { git = "https://github.com/GuillaumeGomez/sysinfo", rev = "622cd8a", default-features = false }
 tokio = { version = "1.34.0", default-features = false, features = ["rt", "sync"] }

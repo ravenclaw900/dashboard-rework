@@ -9,6 +9,8 @@ const CACHE_DURATION: Duration = Duration::from_millis(1500);
 pub struct SystemCache {
     pub system: EphemeralOption<types::SystemData>,
     pub processes: EphemeralOption<Vec<types::ProcessData>>,
+    // Host data won't/shouldn't expire (except uptime, will deal with that soon)
+    pub host: Option<types::HostData>,
 }
 
 impl SystemCache {
@@ -16,11 +18,12 @@ impl SystemCache {
         Self {
             system: EphemeralOption::new_empty(CACHE_DURATION),
             processes: EphemeralOption::new_empty(CACHE_DURATION),
+            host: None,
         }
     }
 }
 
-pub fn try_from_cache_or_init<T>(
+pub fn from_cache_or_init<T>(
     cache: &mut EphemeralOption<T>,
     sys: &mut System,
     init_fn: fn(&mut System) -> T,
@@ -28,13 +31,8 @@ pub fn try_from_cache_or_init<T>(
 where
     T: Clone,
 {
-    // Use if let else here to satisfy borrow checker
-    #[allow(clippy::option_if_let_else)]
-    if let Some(val) = cache.get() {
-        val.clone()
-    } else {
-        let val = init_fn(sys);
-        cache.insert(val.clone());
-        val
+    match cache.get() {
+        Some(val) => val.clone(),
+        None => cache.insert(init_fn(sys)).clone(),
     }
 }
