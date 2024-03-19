@@ -3,17 +3,16 @@ use humantime::format_duration;
 use maud::{html, Markup, PreEscaped};
 use pretty_bytes_typed::pretty_bytes_binary;
 use serde::Deserialize;
-use sysdata::{Request, RequestTx};
-use tokio::sync::oneshot;
+use sysdata::{types::ProcessData, Request, RequestTx};
 
-use crate::layout;
+use crate::layout::{main_template, send_req};
 
 #[derive(Deserialize)]
 pub struct ProcessQuery {
     sort: Column,
 }
 
-#[derive(Deserialize, PartialEq)]
+#[derive(Deserialize, Clone, Copy, PartialEq)]
 #[serde(rename_all = "lowercase")]
 enum Column {
     Pid,
@@ -25,7 +24,7 @@ enum Column {
 }
 
 impl Column {
-    const fn as_str(&self) -> &'static str {
+    const fn as_str(self) -> &'static str {
         match self {
             Self::Pid => "pid",
             Self::Name => "name",
@@ -37,31 +36,32 @@ impl Column {
     }
 }
 
-pub async fn process_page() -> Markup {
+pub async fn process_page(State(tx): State<RequestTx>) -> Markup {
+    let mut resp = send_req!(Request::Process, tx);
+
     let main = html! {
         main {
             section {
                 header {
                     "Processes"
                 }
-                table hx-get="/api/process?sort=pid" hx-trigger="load" hx-swap="outerHTML" {}
+                (process_inner(&mut resp, Column::Pid))
             }
         }
     };
-    layout::main_template(&main.into())
+    main_template(&main.into())
+}
+
+pub async fn process_api(State(tx): State<RequestTx>, Query(query): Query<ProcessQuery>) -> Markup {
+    let mut resp = send_req!(Request::Process, tx);
+
+    process_inner(&mut resp, query.sort)
 }
 
 // Clippy seems to get confused by the macro
 #[allow(clippy::branches_sharing_code)]
-pub async fn process_api(State(tx): State<RequestTx>, Query(query): Query<ProcessQuery>) -> Markup {
-    let (resp_tx, resp_rx) = oneshot::channel();
-    tx.send(Request::Process(resp_tx)).await.unwrap();
-
-    let mut resp = resp_rx.await.unwrap();
-
-    let sort = query.sort;
-
-    resp.sort_unstable_by(|a, b| {
+fn process_inner(data: &mut [ProcessData], sort: Column) -> Markup {
+    data.sort_unstable_by(|a, b| {
         match sort {
             Column::Pid => a.pid.cmp(&b.pid),
             Column::Name => a.name.cmp(&b.name),
@@ -103,7 +103,7 @@ pub async fn process_api(State(tx): State<RequestTx>, Query(query): Query<Proces
                     }
                 }
             }
-            @for proc in resp {
+            @for proc in data {
                 tr {
                     td {
                         (proc.pid)

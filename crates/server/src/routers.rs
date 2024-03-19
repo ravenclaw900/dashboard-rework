@@ -5,6 +5,7 @@ use axum::{
     Router,
 };
 use config::CONFIG;
+use sysdata::RequestTx;
 
 use crate::middleware::login_middleware;
 
@@ -26,15 +27,12 @@ fn static_router() -> Router {
         .route("/xterm.css", get(static_files::xterm_css))
 }
 
-fn api_router() -> Router {
-    let tx = sysdata::spawn_system_task();
-
+fn api_router() -> Router<RequestTx> {
     let mut router = Router::new()
         .route("/system", get(frontend::system_api))
         .route("/process", get(frontend::process_api))
         .route("/process/:pid", post(api::process_signal))
-        .route("/terminal", get(api::terminal))
-        .with_state(tx);
+        .route("/terminal", get(api::terminal));
 
     if CONFIG.auth.enable_auth {
         router = router
@@ -45,7 +43,7 @@ fn api_router() -> Router {
     router
 }
 
-fn page_router() -> Router {
+fn page_router() -> Router<RequestTx> {
     let mut router = Router::new()
         .route("/", get(|| async { Redirect::permanent("/system") }))
         .route("/system", get(frontend::system_page))
@@ -62,8 +60,11 @@ fn page_router() -> Router {
 }
 
 pub fn router() -> Router {
+    let tx = sysdata::spawn_system_task();
+
     Router::new()
-        .nest("/static", static_router())
-        .nest("/api", api_router())
         .merge(page_router())
+        .nest("/api", api_router())
+        .with_state(tx)
+        .nest("/static", static_router())
 }

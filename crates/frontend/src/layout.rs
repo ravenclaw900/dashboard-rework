@@ -1,5 +1,17 @@
 use maud::{html, Markup, PreEscaped, DOCTYPE};
 
+// Why did I put this macro here? Mostly because this module is already imported by all of the others.
+macro_rules! send_req {
+    ($req:path, $chan:ident) => {{
+        let (resp_tx, resp_rx) = tokio::sync::oneshot::channel();
+        $chan.send($req(resp_tx)).await.unwrap();
+
+        resp_rx.await.unwrap()
+    }};
+}
+
+pub(crate) use send_req;
+
 pub struct Document {
     pub markup: Markup,
     pub addl_css: Option<&'static [&'static str]>,
