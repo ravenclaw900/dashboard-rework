@@ -103,6 +103,10 @@ fn nav_menu() -> Markup {
                     (PreEscaped(iconify::svg!("fa6-solid:microchip")))
                     "Processes"
                 }
+                a href="/management" {
+                    (PreEscaped(iconify::svg!("fa6-solid:user")))
+                    "Management"
+                }
                 a href="/terminal" {
                     (PreEscaped(iconify::svg!("fa6-solid:terminal")))
                     "Terminal"

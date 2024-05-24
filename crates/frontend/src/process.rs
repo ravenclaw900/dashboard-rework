@@ -42,7 +42,7 @@ pub async fn process_page(State(tx): State<RequestTx>) -> Markup {
     let main = html! {
         main {
             section {
-                header {
+                h2 {
                     "Processes"
                 }
                 (process_inner(&mut resp, Column::Pid))
@@ -85,22 +85,20 @@ fn process_inner(data: &mut [ProcessData], sort: Column) -> Markup {
     html! {
         // Use 'load polling' technique
         table hx-get={"/api/process?sort=" (sort.as_str())} hx-trigger="load delay:2s" hx-swap="outerHTML" hx-target="this" {
-            thead {
-                tr {
-                    @for header in headers {
-                        th {
-                            button hx-get={"/api/process?sort=" (header.1.as_str())} {
-                                // Space to add some space between header and sort icon
-                                (header.0) " "
-                                @if sort == header.1 {
-                                    (PreEscaped(iconify::svg!("fa6-solid:sort")))
-                                }
+            tr {
+                @for header in headers {
+                    th {
+                        button hx-get={"/api/process?sort=" (header.1.as_str())} {
+                            // Space to add some space between header and sort icon
+                            (header.0) " "
+                            @if sort == header.1 {
+                                (PreEscaped(iconify::svg!("fa6-solid:sort")))
                             }
                         }
                     }
-                    th {
-                        "Actions"
-                    }
+                }
+                th {
+                    "Actions"
                 }
             }
             @for proc in data {
@@ -125,20 +123,22 @@ fn process_inner(data: &mut [ProcessData], sort: Column) -> Markup {
                         @let pretty_runtime = format_duration(proc.runtime);
                         (pretty_runtime)
                     }
-                    td ."actions-cell" {
-                        button title="Terminate" hx-post={"/api/process/" (proc.pid) "?signal=term"} hx-swap="none" {
-                            (PreEscaped(iconify::svg!("fa6-solid:ban")))
-                        }
-                        button title="Kill" hx-post={"/api/process/" (proc.pid) "?signal=kill"} hx-swap="none" {
-                            (PreEscaped(iconify::svg!("fa6-solid:skull")))
-                        }
-                        @if proc.status == "Stopped" {
-                            button title="Resume" hx-post={"/api/process/" (proc.pid) "?signal=resume"} hx-swap="none" {
-                                (PreEscaped(iconify::svg!("fa6-solid:play")))
+                    td {
+                        div ."actions-cell" {
+                            button title="Terminate" hx-post={"/api/process/" (proc.pid) "?signal=term"} hx-swap="none" {
+                                (PreEscaped(iconify::svg!("fa6-solid:ban")))
                             }
-                        } @else {
-                            button title="Stop" hx-post={"/api/process/" (proc.pid) "?signal=stop"} hx-swap="none" {
-                                (PreEscaped(iconify::svg!("fa6-solid:pause")))
+                            button title="Kill" hx-post={"/api/process/" (proc.pid) "?signal=kill"} hx-swap="none" {
+                                (PreEscaped(iconify::svg!("fa6-solid:skull")))
+                            }
+                            @if proc.status == "Stopped" {
+                                button title="Resume" hx-post={"/api/process/" (proc.pid) "?signal=resume"} hx-swap="none" {
+                                    (PreEscaped(iconify::svg!("fa6-solid:play")))
+                                }
+                            } @else {
+                                button title="Stop" hx-post={"/api/process/" (proc.pid) "?signal=stop"} hx-swap="none" {
+                                    (PreEscaped(iconify::svg!("fa6-solid:pause")))
+                                }
                             }
                         }
                     }

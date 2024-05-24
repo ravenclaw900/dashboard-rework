@@ -48,7 +48,8 @@ fn page_router() -> Router<RequestTx> {
         .route("/", get(|| async { Redirect::permanent("/system") }))
         .route("/system", get(frontend::system_page))
         .route("/process", get(frontend::process_page))
-        .route("/terminal", get(frontend::terminal_page));
+        .route("/terminal", get(frontend::terminal_page))
+        .route("/management", get(frontend::management_page));
 
     if CONFIG.auth.enable_auth {
         router = router

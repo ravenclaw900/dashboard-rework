@@ -11,7 +11,7 @@ pub async fn system_page(State(tx): State<RequestTx>) -> Markup {
     let main = html! {
         main {
             section {
-                header {
+                h2 {
                     "System Statistics"
                 }
                 div hx-get="/api/system" hx-trigger="every 2s" {

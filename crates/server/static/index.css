@@ -25,12 +25,12 @@ button {
 body {
   font-family: var(--font-sans);
   display: grid;
-  grid-template-columns: minmax(var(--size-12), 1fr) 5fr;
+  grid-template-columns: minmax(var(--size-13), 1fr) 5fr;
   grid-template-rows: var(--size-8) 1fr var(--size-9);
   grid-template-areas: "nav head" "nav main" "nav foot";
 }
 
-body > header {
+header {
   grid-area: head;
   background-color: var(--dietpi-light);
   display: flex;
@@ -72,6 +72,10 @@ nav {
 main {
   background-color: var(--gray-0);
   padding: var(--size-2);
+
+  > * + * {
+    margin-top: var(--size-3);
+  }
 }
 
 footer {
@@ -94,34 +98,37 @@ section {
   flex-direction: column;
   gap: var(--size-2);
 
-  header {
+  h2 {
     font-weight: var(--font-weight-medium);
-    font-size: var(--font-size-3);
     border-bottom: var(--border-size-2) solid var(--gray-3);
   }
 }
 
+/* Basic table styling */
+/* Light border, alternating row colors */
 table {
   width: 100%;
   border-spacing: 0px;
 
-  thead tr {
+  border: var(--gray-0) solid var(--border-size-2);
+
+  th {
     background-color: var(--dietpi-light);
     height: var(--size-6);
-  }
 
-  th button {
-    width: 100%;
-    font-weight: var(--font-weight-medium);
-  }
-
-  tbody tr {
-    height: var(--size-8);
-    border-bottom: var(--gray-6) solid var(--border-size-2);
-
-    &:nth-child(odd) {
-      background-color: var(--gray-3);
+    button {
+      width: 100%;
+      font-weight: var(--font-weight-medium);
     }
+  }
+
+  tr:nth-child(odd) {
+    background-color: var(--gray-3);
+  }
+
+  td {
+    padding: var(--size-1);
+    border-bottom: var(--gray-6) solid var(--border-size-1);
   }
 }
 
@@ -151,9 +158,9 @@ table {
 /* CSS for process page */
 .actions-cell {
   display: flex;
-  /* I would prefer to use 100% here, but it doesn't seem to work */
-  height: var(--size-8);
   justify-content: space-evenly;
+  height: var(--size-8);
+
   * {
     font-size: var(--font-size-3);
   }
@@ -163,4 +170,11 @@ table {
 #terminal {
   /* Need to use 99% because 100% stops vertical resizing from working */
   height: 99%;
+}
+
+/* CSS for management page */
+#management-table {
+  td:nth-child(odd) {
+    font-weight: var(--font-weight-semibold);
+  }
 }
