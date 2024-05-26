@@ -1,54 +1,59 @@
-use toml_edit::{table, value, Document, Table};
+use toml_edit::{value, DocumentMut, Item};
 
-pub fn migrate(doc: &mut Document) -> bool {
-    let toml = doc.as_table();
-    let version = toml
+const LATEST_CONFIG_VERSION: i64 = 1;
+
+pub fn migrate(doc: &mut DocumentMut) -> bool {
+    let mut version = doc
         .get("CONFIG_VERSION_DO_NOT_CHANGE")
-        .map(|x| x.as_integer().unwrap());
-    match version {
-        // From the original version of the dashboard
-        // Not even worth doing a migration, just try and copy old settings over to a file with new defaults
-        None => {
-            let new_toml = migrate_0_to_1(toml);
-            *doc = new_toml;
-            false
+        .and_then(Item::as_integer)
+        .unwrap_or(0);
+
+    let mut migration_occured = false;
+
+    while version < LATEST_CONFIG_VERSION {
+        match version {
+            0 => migrate_0_to_1(doc),
+            _ => unreachable!(),
         }
-        Some(_) => true,
+
+        migration_occured = true;
+        version += 1;
     }
+
+    migration_occured
 }
 
-fn migrate_0_to_1(toml: &Table) -> Document {
-    let mut new_toml = Document::new();
+// From the original version of the dashboard
+// Not even worth doing a migration, just try and copy old settings over to a file with new defaults
+fn migrate_0_to_1(old_toml: &mut DocumentMut) {
+    let mut new_toml = DocumentMut::new();
+
     new_toml["CONFIG_VERSION_DO_NOT_CHANGE"] = value(1);
     new_toml["port"] = value(5252);
 
-    let mut tls = table();
-    tls["enable_tls"] = value(false);
-    tls["cert_path"] = value("");
-    tls["key_path"] = value("");
-    new_toml["tls"] = tls;
+    new_toml["tls"]["enable_tls"] = value(false);
+    new_toml["tls"]["cert_path"] = value("");
+    new_toml["tls"]["key_path"] = value("");
 
-    let mut auth = table();
-    auth["enable_auth"] = value(false);
-    auth["privkey_path"] = value("");
-    auth["pubkey_path"] = value("");
-    auth["hash"] = value("");
-    auth["expiry"] = value(3600);
-    new_toml["auth"] = auth;
+    new_toml["auth"]["enable_auth"] = value(false);
+    new_toml["auth"]["privkey_path"] = value("");
+    new_toml["auth"]["pubkey_path"] = value("");
+    new_toml["auth"]["hash"] = value("");
+    new_toml["auth"]["expiry"] = value(3600);
 
-    if let Some(port) = toml.get("port") {
+    if let Some(port) = old_toml.get("port") {
         new_toml["port"] = port.clone();
     }
 
-    if let Some(enable_tls) = toml.get("tls") {
+    if let Some(enable_tls) = old_toml.get("tls") {
         new_toml["tls"]["enable_tls"] = enable_tls.clone();
     }
-    if let Some(cert_path) = toml.get("cert") {
+    if let Some(cert_path) = old_toml.get("cert") {
         new_toml["tls"]["cert_path"] = cert_path.clone();
     }
-    if let Some(key_path) = toml.get("key") {
+    if let Some(key_path) = old_toml.get("key") {
         new_toml["tls"]["key_path"] = key_path.clone();
     }
 
-    new_toml
+    *old_toml = new_toml;
 }
