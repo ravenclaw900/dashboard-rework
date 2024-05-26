@@ -55,5 +55,15 @@ fn migrate_0_to_1(old_toml: &mut DocumentMut) {
         new_toml["tls"]["key_path"] = key_path.clone();
     }
 
+    if let Some(enable_auth) = old_toml.get("pass") {
+        new_toml["auth"]["enable_auth"] = enable_auth.clone();
+    }
+    if let Some(hash) = old_toml.get("hash") {
+        new_toml["auth"]["hash"] = hash.clone();
+    }
+    if let Some(expiry) = old_toml.get("expiry") {
+        new_toml["auth"]["expiry"] = expiry.clone();
+    }
+
     *old_toml = new_toml;
 }
