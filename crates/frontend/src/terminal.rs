@@ -2,7 +2,7 @@ use maud::{html, Markup};
 
 use crate::layout::{self, Document};
 
-pub async fn terminal_page() -> Markup {
+pub async fn page() -> Markup {
     let main = html! {
         main {
             div id="terminal" {}
@@ -11,12 +11,12 @@ pub async fn terminal_page() -> Markup {
 
     layout::main_template(&Document {
         markup: main,
-        addl_scripts: Some(&[
+        addl_scripts: &[
             "xterm.js",
             "xterm-addon-attach.js",
             "xterm-addon-fit.js",
             "terminal.js",
-        ]),
-        addl_css: Some(&["xterm.css"]),
+        ],
+        addl_css: &["xterm.css"],
     })
 }

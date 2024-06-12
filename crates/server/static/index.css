@@ -2,15 +2,49 @@
 *,
 *::before,
 *::after {
-  margin: 0;
-  padding: 0;
   box-sizing: border-box;
 }
 
-html,
+* {
+  padding: 0;
+  margin: 0;
+}
+
 body {
-  width: 100%;
-  height: 100%;
+  line-height: 1.5;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+button,
+input,
+label {
+  line-height: 1.1;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
 }
 
 /* Invisible buttons */
@@ -73,7 +107,7 @@ main {
   background-color: var(--gray-0);
   padding: var(--size-2);
 
-  > * + * {
+  >*+* {
     margin-top: var(--size-3);
   }
 }
@@ -108,7 +142,7 @@ section {
 /* Light border, alternating row colors */
 table {
   width: 100%;
-  border-spacing: 0px;
+  /* border-spacing: 0px; */
 
   border: var(--gray-0) solid var(--border-size-2);
 

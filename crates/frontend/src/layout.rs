@@ -14,16 +14,16 @@ pub(crate) use send_req;
 
 pub struct Document {
     pub markup: Markup,
-    pub addl_css: Option<&'static [&'static str]>,
-    pub addl_scripts: Option<&'static [&'static str]>,
+    pub addl_css: &'static [&'static str],
+    pub addl_scripts: &'static [&'static str],
 }
 
 impl From<Markup> for Document {
     fn from(value: Markup) -> Self {
         Self {
             markup: value,
-            addl_css: None,
-            addl_scripts: None,
+            addl_css: &[],
+            addl_scripts: &[],
         }
     }
 }
@@ -39,18 +39,14 @@ pub fn main_template(doc: &Document) -> Markup {
                 link rel="stylesheet" href="/static/vars.css";
                 link rel="stylesheet" href="/static/index.css";
 
-                @if let Some(styles) = doc.addl_css {
-                    @for css in styles {
-                        link rel="stylesheet" href={"/static/" (css)};
-                    }
+                @for css in doc.addl_css {
+                    link rel="stylesheet" href={"/static/" (css)};
                 }
 
                 script defer src="/static/htmx.js" {}
 
-                @if let Some(scripts) = doc.addl_scripts {
-                    @for script in scripts {
-                        script defer src={"/static/" (script)} {}
-                    }
+                @for script in doc.addl_scripts {
+                    script defer src={"/static/" (script)} {}
                 }
             }
 

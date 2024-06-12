@@ -7,7 +7,7 @@ use sysdata::{Request, RequestTx};
 
 use crate::layout::{main_template, send_req};
 
-pub async fn management_page(State(tx): State<RequestTx>) -> Markup {
+pub async fn page(State(tx): State<RequestTx>) -> Markup {
     let (data, uptime) = send_req!(Request::Host, tx);
 
     let pretty_uptime = format_duration(Duration::from_secs(uptime));

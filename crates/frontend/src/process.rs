@@ -36,8 +36,8 @@ impl Column {
     }
 }
 
-pub async fn process_page(State(tx): State<RequestTx>) -> Markup {
-    let mut resp = send_req!(Request::Process, tx);
+pub async fn page(State(tx): State<RequestTx>) -> Markup {
+    let mut data = send_req!(Request::Process, tx);
 
     let main = html! {
         main {
@@ -45,33 +45,31 @@ pub async fn process_page(State(tx): State<RequestTx>) -> Markup {
                 h2 {
                     "Processes"
                 }
-                (process_inner(&mut resp, Column::Pid))
+                (inner(&mut data, Column::Pid))
             }
         }
     };
+
     main_template(&main.into())
 }
 
-pub async fn process_api(State(tx): State<RequestTx>, Query(query): Query<ProcessQuery>) -> Markup {
-    let mut resp = send_req!(Request::Process, tx);
+pub async fn fragment(State(tx): State<RequestTx>, Query(query): Query<ProcessQuery>) -> Markup {
+    let mut data = send_req!(Request::Process, tx);
 
-    process_inner(&mut resp, query.sort)
+    inner(&mut data, query.sort)
 }
 
 // Clippy seems to get confused by the macro
 #[allow(clippy::branches_sharing_code)]
-fn process_inner(data: &mut [ProcessData], sort: Column) -> Markup {
-    data.sort_unstable_by(|a, b| {
-        match sort {
-            Column::Pid => a.pid.cmp(&b.pid),
-            Column::Name => a.name.cmp(&b.name),
-            Column::Status => a.status.cmp(&b.status),
-            // Guaranteed to not be NaN, so unwrap is safe here
-            Column::Cpu => a.cpu.partial_cmp(&b.cpu).unwrap(),
-            Column::Mem => a.mem.cmp(&b.mem),
-            Column::Runtime => a.runtime.cmp(&b.runtime),
-        }
-    });
+fn inner(data: &mut [ProcessData], sort: Column) -> Markup {
+    match sort {
+        Column::Pid => data.sort_unstable_by(|a, b| a.pid.cmp(&b.pid)),
+        Column::Name => data.sort_unstable_by(|a, b| a.name.cmp(&b.name)),
+        Column::Status => data.sort_unstable_by(|a, b| a.status.cmp(&b.status)),
+        Column::Cpu => data.sort_unstable_by(|a, b| a.cpu.total_cmp(&b.cpu)),
+        Column::Mem => data.sort_unstable_by(|a, b| a.mem.cmp(&b.mem)),
+        Column::Runtime => data.sort_unstable_by(|a, b| a.runtime.cmp(&b.runtime)),
+    }
 
     let headers = [
         ("PID", Column::Pid),
@@ -84,11 +82,11 @@ fn process_inner(data: &mut [ProcessData], sort: Column) -> Markup {
 
     html! {
         // Use 'load polling' technique
-        table hx-get={"/api/process?sort=" (sort.as_str())} hx-trigger="load delay:2s" hx-swap="outerHTML" hx-target="this" {
+        table hx-get={"/process/htmx?sort=" (sort.as_str())} hx-trigger="load delay:2s" hx-swap="outerHTML" hx-target="this" {
             tr {
                 @for header in headers {
                     th {
-                        button hx-get={"/api/process?sort=" (header.1.as_str())} {
+                        button hx-get={"/process/htmx?sort=" (header.1.as_str())} {
                             // Space to add some space between header and sort icon
                             (header.0) " "
                             @if sort == header.1 {

@@ -5,8 +5,8 @@ use sysdata::{types::SystemData, Request, RequestTx};
 
 use crate::layout::{main_template, send_req};
 
-pub async fn system_page(State(tx): State<RequestTx>) -> Markup {
-    let resp = send_req!(Request::System, tx);
+pub async fn page(State(tx): State<RequestTx>) -> Markup {
+    let data = send_req!(Request::System, tx);
 
     let main = html! {
         main {
@@ -14,22 +14,23 @@ pub async fn system_page(State(tx): State<RequestTx>) -> Markup {
                 h2 {
                     "System Statistics"
                 }
-                div hx-get="/api/system" hx-trigger="every 2s" {
-                    (system_inner(&resp))
+                div hx-get="/system/htmx" hx-trigger="every 2s" {
+                    (inner(&data))
                 }
             }
         }
     };
+
     main_template(&main.into())
 }
 
-pub async fn system_api(State(tx): State<RequestTx>) -> Markup {
-    let resp = send_req!(Request::System, tx);
+pub async fn fragment(State(tx): State<RequestTx>) -> Markup {
+    let data = send_req!(Request::System, tx);
 
-    system_inner(&resp)
+    inner(&data)
 }
 
-fn system_inner(data: &SystemData) -> Markup {
+fn inner(data: &SystemData) -> Markup {
     let pretty_ram_used = pretty_bytes_binary(data.ram.used, Some(2));
     let pretty_ram_total = pretty_bytes_binary(data.ram.total, Some(2));
 

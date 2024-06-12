@@ -29,8 +29,6 @@ fn static_router() -> Router {
 
 fn api_router() -> Router<RequestTx> {
     let mut router = Router::new()
-        .route("/system", get(frontend::system_api))
-        .route("/process", get(frontend::process_api))
         .route("/process/:pid", post(api::process_signal))
         .route("/terminal", get(api::terminal));
 
@@ -43,18 +41,20 @@ fn api_router() -> Router<RequestTx> {
     router
 }
 
-fn page_router() -> Router<RequestTx> {
+fn frontend_router() -> Router<RequestTx> {
     let mut router = Router::new()
         .route("/", get(|| async { Redirect::permanent("/system") }))
-        .route("/system", get(frontend::system_page))
-        .route("/process", get(frontend::process_page))
-        .route("/terminal", get(frontend::terminal_page))
-        .route("/management", get(frontend::management_page));
+        .route("/process", get(frontend::process::page))
+        .route("/process/htmx", get(frontend::process::fragment))
+        .route("/system", get(frontend::system::page))
+        .route("/system/htmx", get(frontend::system::fragment))
+        .route("/management", get(frontend::management::page))
+        .route("/terminal", get(frontend::terminal::page));
 
     if CONFIG.auth.enable_auth {
         router = router
             .layer(middleware::from_fn(login_middleware))
-            .route("/login", get(frontend::login_page));
+            .route("/login", get(frontend::login::page));
     }
 
     router
@@ -64,7 +64,7 @@ pub fn router() -> Router {
     let tx = sysdata::spawn_system_task();
 
     Router::new()
-        .merge(page_router())
+        .merge(frontend_router())
         .nest("/api", api_router())
         .with_state(tx)
         .nest("/static", static_router())

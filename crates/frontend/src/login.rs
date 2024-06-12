@@ -3,7 +3,7 @@ use maud::{html, Markup};
 
 use crate::layout;
 
-pub async fn login_page(RawQuery(query): RawQuery) -> Markup {
+pub async fn page(RawQuery(query): RawQuery) -> Markup {
     let incorrect = query.is_some_and(|x| x.contains("incorrect"));
 
     let main = html! {
