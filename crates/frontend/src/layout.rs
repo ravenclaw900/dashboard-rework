@@ -1,16 +1,43 @@
+use axum::{http::StatusCode, response::IntoResponse};
 use maud::{html, Markup, PreEscaped, DOCTYPE};
 
 // Why did I put this macro here? Mostly because this module is already imported by all of the others.
 macro_rules! send_req {
-    ($req:path, $chan:ident) => {{
-        let (resp_tx, resp_rx) = tokio::sync::oneshot::channel();
-        $chan.send($req(resp_tx)).await.unwrap();
+    ($req:path, $chan:ident) => {
+        'a: {
+            use crate::layout::ChannelSendError;
 
-        resp_rx.await.unwrap()
-    }};
+            let (resp_tx, resp_rx) = tokio::sync::oneshot::channel();
+            let send_req = $chan.send($req(resp_tx)).await;
+
+            if send_req.is_err() {
+                break 'a Err(ChannelSendError);
+            }
+
+            resp_rx.await.map_err(|_| ChannelSendError)
+        }
+    };
 }
 
 pub(crate) use send_req;
+
+pub struct ChannelSendError;
+
+impl ChannelSendError {
+    const MSG: &'static str = "Failed to request system data";
+}
+
+impl std::fmt::Display for ChannelSendError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", Self::MSG)
+    }
+}
+
+impl IntoResponse for ChannelSendError {
+    fn into_response(self) -> axum::response::Response {
+        (StatusCode::INTERNAL_SERVER_ERROR, Self::MSG).into_response()
+    }
+}
 
 pub struct Document {
     pub markup: Markup,
@@ -72,11 +99,9 @@ fn header() -> Markup {
 }
 
 fn footer() -> Markup {
-    let current_version = env!("CARGO_PKG_VERSION");
-
     html! {
         footer {
-            "DietPi Dashboard v"(current_version)" by ravenclaw900"
+            "DietPi Dashboard v"(config::VERSION)" by ravenclaw900"
             a href="https://github.com/ravenclaw900/dashboard-rework" target="_blank" {
                 (PreEscaped(iconify::svg!("cib:github", width="32", color="black")))
             }

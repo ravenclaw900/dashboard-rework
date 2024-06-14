@@ -22,3 +22,21 @@ pub struct Config {
     pub tls: ConfigTls,
     pub auth: ConfigAuth,
 }
+
+impl Config {
+    pub const DEFAULT: Self = Self {
+        port: 5252,
+        tls: ConfigTls {
+            enable_tls: false,
+            cert_path: String::new(),
+            key_path: String::new(),
+        },
+        auth: ConfigAuth {
+            enable_auth: false,
+            privkey_path: String::new(),
+            pubkey_path: String::new(),
+            hash: String::new(),
+            expiry: 3600,
+        },
+    };
+}

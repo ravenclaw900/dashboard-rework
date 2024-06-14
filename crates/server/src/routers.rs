@@ -7,7 +7,7 @@ use axum::{
 use config::CONFIG;
 use sysdata::RequestTx;
 
-use crate::middleware::login_middleware;
+use crate::middleware::{login_middleware, tracing_middleware};
 
 use crate::api;
 use crate::static_files;
@@ -68,4 +68,5 @@ pub fn router() -> Router {
         .nest("/api", api_router())
         .with_state(tx)
         .nest("/static", static_router())
+        .layer(middleware::from_fn(tracing_middleware))
 }

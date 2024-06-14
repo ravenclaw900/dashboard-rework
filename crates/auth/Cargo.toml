@@ -1,7 +1,9 @@
 [package]
 name = "auth"
-version = "0.7.0"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
 
 [lints]
 workspace = true
@@ -9,6 +11,9 @@ workspace = true
 [dependencies]
 config = { version = "0.7.0", path = "../config" }
 ct-codecs = "1.1.1"
-ed25519-compact = { version = "2.0.4", default-features = false, features = ["random", "pem"]}
+ed25519-compact = { version = "2.0.4", default-features = false, features = [
+    "random",
+    "pem",
+] }
 # ring is only used for SHA-512 digest, but is used because it is already in the dependency tree
 ring = "0.17.7"

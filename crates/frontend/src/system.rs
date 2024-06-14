@@ -3,10 +3,11 @@ use maud::{html, Markup};
 use pretty_bytes_typed::pretty_bytes_binary;
 use sysdata::{types::SystemData, Request, RequestTx};
 
-use crate::layout::{main_template, send_req};
+use crate::layout::{main_template, send_req, ChannelSendError};
 
-pub async fn page(State(tx): State<RequestTx>) -> Markup {
-    let data = send_req!(Request::System, tx);
+#[tracing::instrument(name = "system_page", skip_all, err)]
+pub async fn page(State(tx): State<RequestTx>) -> Result<Markup, ChannelSendError> {
+    let data = send_req!(Request::System, tx)?;
 
     let main = html! {
         main {
@@ -21,13 +22,14 @@ pub async fn page(State(tx): State<RequestTx>) -> Markup {
         }
     };
 
-    main_template(&main.into())
+    Ok(main_template(&main.into()))
 }
 
-pub async fn fragment(State(tx): State<RequestTx>) -> Markup {
-    let data = send_req!(Request::System, tx);
+#[tracing::instrument(name = "system_fragment", skip_all, err)]
+pub async fn fragment(State(tx): State<RequestTx>) -> Result<Markup, ChannelSendError> {
+    let data = send_req!(Request::System, tx)?;
 
-    inner(&data)
+    Ok(inner(&data))
 }
 
 fn inner(data: &SystemData) -> Markup {

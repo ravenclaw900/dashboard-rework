@@ -2,6 +2,12 @@
 members = ["crates/sysdata", "crates/server", "crates/frontend", "crates/config", "crates/auth"]
 resolver = "2"
 
+[workspace.package]
+version = "0.7.0"
+authors = ["ravenclaw900 <ravenclaw900@proton.me>"]
+edition = "2021"
+license = "GPL-3.0"
+
 [workspace.lints.clippy]
 pedantic = "warn"
 nursery = "warn"

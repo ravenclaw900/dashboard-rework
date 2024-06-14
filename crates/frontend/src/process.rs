@@ -5,7 +5,7 @@ use pretty_bytes_typed::pretty_bytes_binary;
 use serde::Deserialize;
 use sysdata::{types::ProcessData, Request, RequestTx};
 
-use crate::layout::{main_template, send_req};
+use crate::layout::{main_template, send_req, ChannelSendError};
 
 #[derive(Deserialize)]
 pub struct ProcessQuery {
@@ -36,8 +36,9 @@ impl Column {
     }
 }
 
-pub async fn page(State(tx): State<RequestTx>) -> Markup {
-    let mut data = send_req!(Request::Process, tx);
+#[tracing::instrument(name = "process_page", skip_all, err)]
+pub async fn page(State(tx): State<RequestTx>) -> Result<Markup, ChannelSendError> {
+    let mut data = send_req!(Request::Process, tx)?;
 
     let main = html! {
         main {
@@ -50,13 +51,17 @@ pub async fn page(State(tx): State<RequestTx>) -> Markup {
         }
     };
 
-    main_template(&main.into())
+    Ok(main_template(&main.into()))
 }
 
-pub async fn fragment(State(tx): State<RequestTx>, Query(query): Query<ProcessQuery>) -> Markup {
-    let mut data = send_req!(Request::Process, tx);
+#[tracing::instrument(name = "process_fragment", skip_all, err)]
+pub async fn fragment(
+    State(tx): State<RequestTx>,
+    Query(query): Query<ProcessQuery>,
+) -> Result<Markup, ChannelSendError> {
+    let mut data = send_req!(Request::Process, tx)?;
 
-    inner(&mut data, query.sort)
+    Ok(inner(&mut data, query.sort))
 }
 
 // Clippy seems to get confused by the macro

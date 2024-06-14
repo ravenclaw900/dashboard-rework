@@ -3,7 +3,7 @@ use hyper_util::service::TowerToHyperService;
 use std::net::{Ipv6Addr, SocketAddr};
 use tokio::net::TcpListener;
 
-use config::CONFIG;
+use config::{CONFIG, VERSION};
 
 mod api;
 mod middleware;
@@ -12,6 +12,8 @@ mod static_files;
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
+    tracing_subscriber::fmt().init();
+
     // Using unspecified IPv6 addr will bind to 0.0.0.0 on both v4 and v6
     let addr = SocketAddr::from((Ipv6Addr::UNSPECIFIED, CONFIG.port));
     let listener = TcpListener::bind(addr)
@@ -33,6 +35,8 @@ async fn main() {
     let router = routers::router();
 
     let service = TowerToHyperService::new(router);
+
+    tracing::info!("Starting dietpi-dashboard v{} on {}", VERSION, addr);
 
     acceptor.serve(service).await;
 }

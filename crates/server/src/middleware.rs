@@ -33,3 +33,16 @@ pub async fn login_middleware(req: Request<Body>, next: Next) -> Response {
         Redirect::to("/login").into_response()
     }
 }
+
+pub async fn tracing_middleware(req: Request<Body>, next: Next) -> Response {
+    use tracing::Instrument;
+
+    // TODO: add remote addr here
+    let span = tracing::info_span!("request");
+    async {
+        tracing::debug!("Request to {}", req.uri().path());
+        next.run(req).await
+    }
+    .instrument(span)
+    .await
+}

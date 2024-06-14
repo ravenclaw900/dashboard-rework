@@ -1,7 +1,9 @@
 [package]
 name = "server"
-version = "0.7.0"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
 
 [[bin]]
 name = "dietpi-dashboard"
@@ -21,3 +23,10 @@ pty-process = { version = "0.4.0", features = ["async"] }
 serde = { version = "1.0.193", features = ["derive"] }
 sysdata = { path = "../sysdata" }
 tokio = { version = "1.35.1", features = ["rt", "macros"] }
+tower-http = { version = "0.5.2", features = ["trace"] }
+tracing = "0.1.40"
+tracing-subscriber = { version = "0.3.18", default-features = false, features = [
+    "fmt",
+    "tracing-log",
+    "ansi",
+] }

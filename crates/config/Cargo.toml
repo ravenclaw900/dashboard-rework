@@ -1,11 +1,17 @@
 [package]
 name = "config"
-version = "0.7.0"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
 
 [lints]
 workspace = true
 
 [dependencies]
 serde = { version = "1.0.192", features = ["derive"] }
-toml_edit = { version = "0.22.13", features = ["serde"] }
+toml_edit = { version = "0.22.13", features = [
+    "serde",
+    "parse",
+], default-features = false }
+tracing = "0.1.40"

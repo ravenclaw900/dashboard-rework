@@ -1,69 +1,84 @@
-use toml_edit::{value, DocumentMut, Item};
+use toml_edit::{DocumentMut, Item};
+
+use crate::types::Config;
 
 const LATEST_CONFIG_VERSION: i64 = 1;
 
-pub fn migrate(doc: &mut DocumentMut) -> bool {
-    let mut version = doc
+macro_rules! config_template {
+    () => {
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/config-versions/config.template.toml"
+        ))
+    };
+}
+
+fn wrap_string(string: &str) -> String {
+    format!("\"{string}\"")
+}
+
+pub fn generate_config(config: &Config) -> String {
+    format!(
+        config_template!(),
+        port = config.port,
+        enable_tls = config.tls.enable_tls,
+        key_path = wrap_string(&config.tls.key_path),
+        cert_path = wrap_string(&config.tls.cert_path),
+        enable_auth = config.auth.enable_auth,
+        privkey_path = wrap_string(&config.auth.privkey_path),
+        pubkey_path = wrap_string(&config.auth.pubkey_path),
+        hash = wrap_string(&config.auth.hash),
+        expiry = config.auth.expiry
+    )
+}
+
+pub fn migrate(doc: &DocumentMut) -> Option<(String, Config)> {
+    let version = doc
         .get("CONFIG_VERSION_DO_NOT_CHANGE")
         .and_then(Item::as_integer)
         .unwrap_or(0);
 
-    let mut migration_occured = false;
-
-    while version < LATEST_CONFIG_VERSION {
-        match version {
-            0 => migrate_0_to_1(doc),
-            _ => unreachable!(),
-        }
-
-        migration_occured = true;
-        version += 1;
+    if version == LATEST_CONFIG_VERSION {
+        return None;
     }
 
-    migration_occured
+    let mut config = Config::DEFAULT;
+
+    tracing::info!("Fonud config version {version}, migrating to version {LATEST_CONFIG_VERSION}");
+
+    match version {
+        0 => migrate_0(doc, &mut config),
+        _ => panic!("Invalid config version {version}"),
+    }
+
+    let config_file = generate_config(&config);
+
+    Some((config_file, config))
 }
 
-// From the original version of the dashboard
-// Not even worth doing a migration, just try and copy old settings over to a file with new defaults
-fn migrate_0_to_1(old_toml: &mut DocumentMut) {
-    let mut new_toml = DocumentMut::new();
-
-    new_toml["CONFIG_VERSION_DO_NOT_CHANGE"] = value(1);
-    new_toml["port"] = value(5252);
-
-    new_toml["tls"]["enable_tls"] = value(false);
-    new_toml["tls"]["cert_path"] = value("");
-    new_toml["tls"]["key_path"] = value("");
-
-    new_toml["auth"]["enable_auth"] = value(false);
-    new_toml["auth"]["privkey_path"] = value("");
-    new_toml["auth"]["pubkey_path"] = value("");
-    new_toml["auth"]["hash"] = value("");
-    new_toml["auth"]["expiry"] = value(3600);
-
-    if let Some(port) = old_toml.get("port") {
-        new_toml["port"] = port.clone();
+#[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
+fn migrate_0(doc: &DocumentMut, config: &mut Config) {
+    if let Some(port) = doc.get("port").and_then(Item::as_integer) {
+        config.port = port as u16;
     }
 
-    if let Some(enable_tls) = old_toml.get("tls") {
-        new_toml["tls"]["enable_tls"] = enable_tls.clone();
+    if let Some(tls) = doc.get("tls").and_then(Item::as_bool) {
+        config.tls.enable_tls = tls;
     }
-    if let Some(cert_path) = old_toml.get("cert") {
-        new_toml["tls"]["cert_path"] = cert_path.clone();
+    if let Some(cert) = doc.get("cert").and_then(Item::as_str) {
+        config.tls.cert_path = cert.to_string();
     }
-    if let Some(key_path) = old_toml.get("key") {
-        new_toml["tls"]["key_path"] = key_path.clone();
-    }
-
-    if let Some(enable_auth) = old_toml.get("pass") {
-        new_toml["auth"]["enable_auth"] = enable_auth.clone();
-    }
-    if let Some(hash) = old_toml.get("hash") {
-        new_toml["auth"]["hash"] = hash.clone();
-    }
-    if let Some(expiry) = old_toml.get("expiry") {
-        new_toml["auth"]["expiry"] = expiry.clone();
+    if let Some(key) = doc.get("key").and_then(Item::as_str) {
+        config.tls.key_path = key.to_string();
     }
 
-    *old_toml = new_toml;
+    if let Some(pass) = doc.get("pass").and_then(Item::as_bool) {
+        config.auth.enable_auth = pass;
+    }
+    if let Some(hash) = doc.get("hash").and_then(Item::as_str) {
+        config.auth.hash = hash.to_string();
+    }
+    if let Some(expiry) = doc.get("expiry").and_then(Item::as_integer) {
+        config.auth.expiry = expiry as u64;
+    }
 }

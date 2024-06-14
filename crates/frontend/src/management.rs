@@ -5,10 +5,11 @@ use humantime::format_duration;
 use maud::{html, Markup};
 use sysdata::{Request, RequestTx};
 
-use crate::layout::{main_template, send_req};
+use crate::layout::{main_template, send_req, ChannelSendError};
 
-pub async fn page(State(tx): State<RequestTx>) -> Markup {
-    let (data, uptime) = send_req!(Request::Host, tx);
+#[tracing::instrument(name = "management_page", skip_all, err)]
+pub async fn page(State(tx): State<RequestTx>) -> Result<Markup, ChannelSendError> {
+    let (data, uptime) = send_req!(Request::Host, tx)?;
 
     let pretty_uptime = format_duration(Duration::from_secs(uptime));
 
@@ -58,5 +59,5 @@ pub async fn page(State(tx): State<RequestTx>) -> Markup {
         }
     };
 
-    main_template(&main.into())
+    Ok(main_template(&main.into()))
 }
