@@ -10,9 +10,29 @@ mod middleware;
 mod routers;
 mod static_files;
 
+// The point of this function is to have logging available while reading the config file,
+// which requires a subscriber to be set up before reading the config
+fn init_logging() {
+    use tracing::level_filters::LevelFilter;
+    use tracing_subscriber::layer::SubscriberExt;
+    use tracing_subscriber::util::SubscriberInitExt;
+    use tracing_subscriber::{fmt, reload};
+
+    let (filter, reload_handle) = reload::Layer::new(LevelFilter::INFO);
+
+    tracing_subscriber::registry()
+        .with(filter)
+        .with(fmt::Layer::default())
+        .init();
+
+    let log_level = CONFIG.log_level;
+
+    _ = reload_handle.modify(|filter| *filter = log_level);
+}
+
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
-    tracing_subscriber::fmt().init();
+    init_logging();
 
     // Using unspecified IPv6 addr will bind to 0.0.0.0 on both v4 and v6
     let addr = SocketAddr::from((Ipv6Addr::UNSPECIFIED, CONFIG.port));

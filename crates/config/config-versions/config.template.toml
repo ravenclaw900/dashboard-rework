@@ -4,6 +4,11 @@ CONFIG_VERSION_DO_NOT_CHANGE = 1
 # - Default: 5252
 port = {port}
 
+# Maximum log level
+# - Options: "off", "error", "warn", "info", "debug"
+# - Default: "info"
+log_level = {log_level}
+
 # TLS for HTTPS
 [tls]
 # Enable HTTPS mode

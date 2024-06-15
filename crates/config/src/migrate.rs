@@ -1,4 +1,5 @@
 use toml_edit::{DocumentMut, Item};
+use tracing::level_filters::LevelFilter;
 
 use crate::types::Config;
 
@@ -21,6 +22,7 @@ pub fn generate_config(config: &Config) -> String {
     format!(
         config_template!(),
         port = config.port,
+        log_level = wrap_string(&config.log_level.to_string()),
         enable_tls = config.tls.enable_tls,
         key_path = wrap_string(&config.tls.key_path),
         cert_path = wrap_string(&config.tls.cert_path),
@@ -60,6 +62,13 @@ pub fn migrate(doc: &DocumentMut) -> Option<(String, Config)> {
 fn migrate_0(doc: &DocumentMut, config: &mut Config) {
     if let Some(port) = doc.get("port").and_then(Item::as_integer) {
         config.port = port as u16;
+    }
+    if let Some(log_level) = doc
+        .get("log_level")
+        .and_then(Item::as_str)
+        .and_then(|x| x.parse::<LevelFilter>().ok())
+    {
+        config.log_level = log_level;
     }
 
     if let Some(tls) = doc.get("tls").and_then(Item::as_bool) {
