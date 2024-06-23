@@ -7,14 +7,14 @@ license.workspace = true
 
 [dependencies]
 async-trait = "0.1.80"
-http-body-util = "0.1.2"
-hyper = "1.3.1"
+http-body-util.workspace = true
+hyper.workspace = true
 hyper-tungstenite = "0.14.0"
-maud = "0.26.0"
-serde = "1.0.203"
+maud.workspace = true
+serde.workspace = true
 serde_urlencoded = "0.7.1"
-sysdata = { version = "0.7.0", path = "../sysdata" }
-tokio = "1.38.0"
+sysdata = { path = "../sysdata" }
+tokio.workspace = true
 
 [lints]
 workspace = true

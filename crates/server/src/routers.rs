@@ -1,8 +1,5 @@
 use config::CONFIG;
-use hyper::{
-    header::{self, HeaderValue},
-    StatusCode,
-};
+use hyper::StatusCode;
 use hyper_ext::{router, FullResponse, IncomingReq, IntoResponse, ResponseExt};
 use sysdata::RequestTx;
 
