@@ -1,5 +1,5 @@
-use axum::extract::{Query, State};
 use humantime::format_duration;
+use hyper_ext::{IncomingReq, UriExt};
 use maud::{html, Markup, PreEscaped};
 use pretty_bytes_typed::pretty_bytes_binary;
 use serde::Deserialize;
@@ -37,7 +37,7 @@ impl Column {
 }
 
 #[tracing::instrument(name = "process_page", skip_all, err)]
-pub async fn page(State(tx): State<RequestTx>) -> Result<Markup, ChannelSendError> {
+pub async fn page(tx: RequestTx) -> Result<Markup, ChannelSendError> {
     let mut data = send_req!(Request::Process, tx)?;
 
     let main = html! {
@@ -55,11 +55,13 @@ pub async fn page(State(tx): State<RequestTx>) -> Result<Markup, ChannelSendErro
 }
 
 #[tracing::instrument(name = "process_fragment", skip_all, err)]
-pub async fn fragment(
-    State(tx): State<RequestTx>,
-    Query(query): Query<ProcessQuery>,
-) -> Result<Markup, ChannelSendError> {
+pub async fn fragment(req: IncomingReq, tx: RequestTx) -> Result<Markup, ChannelSendError> {
     let mut data = send_req!(Request::Process, tx)?;
+
+    let query: ProcessQuery = req
+        .uri()
+        .deserialize_query()
+        .expect("I shouldn't panic here but whatever");
 
     Ok(inner(&mut data, query.sort))
 }
@@ -128,18 +130,18 @@ fn inner(data: &mut [ProcessData], sort: Column) -> Markup {
                     }
                     td {
                         div ."actions-cell" {
-                            button title="Terminate" hx-post={"/api/process/" (proc.pid) "?signal=term"} hx-swap="none" {
+                            button title="Terminate" hx-post={"/api/process?signal=term&pid=" (proc.pid)} hx-swap="none" {
                                 (PreEscaped(iconify::svg!("fa6-solid:ban")))
                             }
-                            button title="Kill" hx-post={"/api/process/" (proc.pid) "?signal=kill"} hx-swap="none" {
+                            button title="Kill" hx-post={"/api/process?signal=kill&pid=" (proc.pid)} hx-swap="none" {
                                 (PreEscaped(iconify::svg!("fa6-solid:skull")))
                             }
                             @if proc.status == "Stopped" {
-                                button title="Resume" hx-post={"/api/process/" (proc.pid) "?signal=resume"} hx-swap="none" {
+                                button title="Resume" hx-post={"/api/process?signal=resume&pid=" (proc.pid)} hx-swap="none" {
                                     (PreEscaped(iconify::svg!("fa6-solid:play")))
                                 }
                             } @else {
-                                button title="Stop" hx-post={"/api/process/" (proc.pid) "?signal=stop"} hx-swap="none" {
+                                button title="Stop" hx-post={"/api/process?signal=stop&pid=" (proc.pid)} hx-swap="none" {
                                     (PreEscaped(iconify::svg!("fa6-solid:pause")))
                                 }
                             }

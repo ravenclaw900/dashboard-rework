@@ -5,8 +5,8 @@ use ring::digest::{digest, SHA512};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 #[must_use]
-pub fn test_password(pass: &str) -> bool {
-    let hashed_pass = digest(&SHA512, pass.as_bytes());
+pub fn test_password(pass: &[u8]) -> bool {
+    let hashed_pass = digest(&SHA512, pass);
     let expected_pass = Hex::decode_to_vec(&CONFIG.auth.hash, None).unwrap();
 
     if hashed_pass.as_ref() == expected_pass {

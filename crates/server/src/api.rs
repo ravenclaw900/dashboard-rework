@@ -1,20 +1,25 @@
-use axum::{
-    extract::{ws, Path, Query, State},
-    http::{header, StatusCode},
-    response::{IntoResponse, Redirect, Response},
-};
 use config::CONFIG;
+use hyper::{header, StatusCode};
+use hyper_ext::{
+    upgrade_websocket, FullResponse, IncomingReq, IntoResponse, RequestExt, ResponseExt, UriExt,
+    WsMessage,
+};
 use pty_process::Size;
 use serde::Deserialize;
 use sysdata::{Request, RequestTx};
 
-pub async fn login(body: String) -> Response {
-    let Some(pass) = body.strip_prefix("pass=") else {
-        return StatusCode::BAD_REQUEST.into_response();
+pub async fn login(req: IncomingReq) -> FullResponse {
+    let body = req.into_body_bytes().await;
+    let mut resp = "".into_response();
+
+    let Some(pass) = body.strip_prefix(b"pass=") else {
+        *resp.status_mut() = StatusCode::BAD_REQUEST;
+        return resp;
     };
 
     if !auth::test_password(pass) {
-        return Redirect::to("/login?incorrect=").into_response();
+        resp.redirect("/login?incorrect=");
+        return resp;
     }
 
     let token = auth::create_token();
@@ -24,29 +29,32 @@ pub async fn login(body: String) -> Response {
         token, CONFIG.auth.expiry
     );
 
-    ([(header::SET_COOKIE, cookie_header)], Redirect::to("/")).into_response()
+    resp.insert_header(header::SET_COOKIE, &cookie_header);
+    resp.redirect("/");
+
+    resp
 }
 
 #[derive(Deserialize)]
 pub struct ProcessSignalQuery {
+    pid: usize,
     signal: sysdata::types::ProcessSignal,
 }
 
-pub async fn process_signal(
-    State(tx): State<RequestTx>,
-    Path(pid): Path<usize>,
-    signal: Query<ProcessSignalQuery>,
-) {
-    tx.send(Request::ProcessSignal(pid, signal.0.signal))
+pub async fn process_signal(req: IncomingReq, tx: RequestTx) {
+    let query: ProcessSignalQuery = req.uri().deserialize_query().unwrap();
+
+    tx.send(Request::ProcessSignal(query.pid, query.signal))
         .await
         .unwrap();
 }
 
-pub async fn terminal(ws: ws::WebSocketUpgrade) -> Response {
+pub fn terminal(req: IncomingReq) -> FullResponse {
+    use futures_util::{SinkExt, StreamExt};
     use pty_process::{Command, Pty};
     use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
-    ws.on_upgrade(|mut socket| async move {
+    upgrade_websocket(req, |mut socket| async move {
         let mut pty = Pty::new().unwrap();
         let mut cmd = Command::new("bash");
         let mut child = cmd.spawn(&pty.pts().unwrap()).unwrap();
@@ -56,16 +64,16 @@ pub async fn terminal(ws: ws::WebSocketUpgrade) -> Response {
         loop {
             tokio::select! {
                 Ok(num_read) = pty.read(&mut data) => {
-                    if socket.send(ws::Message::Binary(data[..num_read].to_vec())).await.is_err() {
+                    if socket.send(WsMessage::Binary(data[..num_read].to_vec())).await.is_err() {
                         break;
                     }
                 }
-                res = socket.recv() => {
+                res = socket.next() => {
                     let Some(Ok(msg)) = res else {
                         break;
                     };
                     match msg {
-                        ws::Message::Text(size) if size.starts_with("size") => {
+                        WsMessage::Text(size) if size.starts_with("size") => {
                             let size = size.trim_start_matches("size");
                             let Some((cols, rows)) = size
                                 .split_once(',')
@@ -75,7 +83,7 @@ pub async fn terminal(ws: ws::WebSocketUpgrade) -> Response {
                             };
                             pty.resize(Size::new(rows, cols)).unwrap();
                         }
-                        ws::Message::Binary(_) | ws::Message::Text(_) => {
+                        WsMessage::Binary(_) | WsMessage::Text(_) => {
                             pty.write_all(&msg.into_data()).await.unwrap();
                         }
                         _ => {}

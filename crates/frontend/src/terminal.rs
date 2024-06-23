@@ -2,7 +2,7 @@ use maud::{html, Markup};
 
 use crate::layout::{self, Document};
 
-pub async fn page() -> Markup {
+pub fn page() -> Markup {
     let main = html! {
         main {
             div id="terminal" {}

@@ -14,11 +14,14 @@ workspace = true
 
 [dependencies]
 auth = { version = "0.7.0", path = "../auth" }
-axum = { version = "0.7.4", default-features = false, features = ["ws"] }
 config = { path = "../config" }
 flexible-hyper-server-tls = "0.3.0"
 frontend = { path = "../frontend" }
+futures-util = "0.3.30"
+http-body-util = "0.1.2"
+hyper = { version = "1.3.1", features = ["http1", "server"] }
 hyper-util = { version = "0.1.2", features = ["service", "http1", "server"] }
+hyper_ext = { version = "0.7.0", path = "../hyper_ext" }
 pty-process = { version = "0.4.0", features = ["async"] }
 serde = { version = "1.0.193", features = ["derive"] }
 sysdata = { path = "../sysdata" }

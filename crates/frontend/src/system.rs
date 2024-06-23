@@ -1,4 +1,3 @@
-use axum::extract::State;
 use maud::{html, Markup};
 use pretty_bytes_typed::pretty_bytes_binary;
 use sysdata::{types::SystemData, Request, RequestTx};
@@ -6,7 +5,7 @@ use sysdata::{types::SystemData, Request, RequestTx};
 use crate::layout::{main_template, send_req, ChannelSendError};
 
 #[tracing::instrument(name = "system_page", skip_all, err)]
-pub async fn page(State(tx): State<RequestTx>) -> Result<Markup, ChannelSendError> {
+pub async fn page(tx: RequestTx) -> Result<Markup, ChannelSendError> {
     let data = send_req!(Request::System, tx)?;
 
     let main = html! {
@@ -26,7 +25,7 @@ pub async fn page(State(tx): State<RequestTx>) -> Result<Markup, ChannelSendErro
 }
 
 #[tracing::instrument(name = "system_fragment", skip_all, err)]
-pub async fn fragment(State(tx): State<RequestTx>) -> Result<Markup, ChannelSendError> {
+pub async fn fragment(tx: RequestTx) -> Result<Markup, ChannelSendError> {
     let data = send_req!(Request::System, tx)?;
 
     Ok(inner(&data))

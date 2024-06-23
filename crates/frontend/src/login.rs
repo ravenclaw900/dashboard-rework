@@ -1,10 +1,10 @@
-use axum::extract::RawQuery;
+use hyper_ext::IncomingReq;
 use maud::{html, Markup};
 
 use crate::layout;
 
-pub async fn page(RawQuery(query): RawQuery) -> Markup {
-    let incorrect = query.is_some_and(|x| x.contains("incorrect"));
+pub fn page(req: IncomingReq) -> Markup {
+    let incorrect = req.uri().query().is_some_and(|x| x.contains("incorrect"));
 
     let main = html! {
         main {

@@ -1,6 +1,5 @@
 use std::time::Duration;
 
-use axum::extract::State;
 use humantime::format_duration;
 use maud::{html, Markup};
 use sysdata::{Request, RequestTx};
@@ -8,7 +7,7 @@ use sysdata::{Request, RequestTx};
 use crate::layout::{main_template, send_req, ChannelSendError};
 
 #[tracing::instrument(name = "management_page", skip_all, err)]
-pub async fn page(State(tx): State<RequestTx>) -> Result<Markup, ChannelSendError> {
+pub async fn page(tx: RequestTx) -> Result<Markup, ChannelSendError> {
     let (data, uptime) = send_req!(Request::Host, tx)?;
 
     let pretty_uptime = format_duration(Duration::from_secs(uptime));

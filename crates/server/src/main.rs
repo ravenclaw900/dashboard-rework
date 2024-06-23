@@ -1,5 +1,5 @@
 use flexible_hyper_server_tls::{rustls_helpers, AcceptorBuilder};
-use hyper_util::service::TowerToHyperService;
+use hyper::service::service_fn;
 use std::net::{Ipv6Addr, SocketAddr};
 use tokio::net::TcpListener;
 
@@ -52,11 +52,11 @@ async fn main() {
         builder.build()
     };
 
-    let router = routers::router();
-
-    let service = TowerToHyperService::new(router);
+    let tx = sysdata::spawn_system_task();
 
     tracing::info!("Starting dietpi-dashboard v{} on {}", VERSION, addr);
 
-    acceptor.serve(service).await;
+    acceptor
+        .serve(service_fn(move |req| routers::router(req, tx.clone())))
+        .await;
 }

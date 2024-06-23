@@ -1,15 +1,17 @@
-use axum::{http::header, response::IntoResponse};
+use hyper::header;
+use hyper_ext::{FullResponse, IntoResponse, ResponseExt};
 
-const JS_CONTENT_HEADER: [(header::HeaderName, &str); 1] =
-    [(header::CONTENT_TYPE, "application/javascript")];
-const CSS_CONTENT_HEADER: [(header::HeaderName, &str); 1] = [(header::CONTENT_TYPE, "text/css")];
+const JS_CONTENT_HEADER: &str = "application/javascript";
+const CSS_CONTENT_HEADER: &str = "text/css";
 
 macro_rules! static_file {
-    ($name:ident, $file:expr, $header:ident) => {
-        pub async fn $name() -> impl IntoResponse {
+    ($name:ident, $file:expr, $content_type:expr) => {
+        pub fn $name() -> FullResponse {
             let body = include_bytes!(concat!(env!("CARGO_MANIFEST_DIR"), "/static/", $file));
 
-            ($header, body)
+            let mut resp = body.into_response();
+            resp.insert_header(header::CONTENT_TYPE, $content_type);
+            resp
         }
     };
 }

@@ -1,4 +1,6 @@
-use axum::{http::StatusCode, response::IntoResponse};
+use hyper::StatusCode;
+use hyper_ext::{FullResponse, IntoResponse};
+// use axum::{http::StatusCode, response::IntoResponse};
 use maud::{html, Markup, PreEscaped, DOCTYPE};
 
 // Why did I put this macro here? Mostly because this module is already imported by all of the others.
@@ -21,6 +23,7 @@ macro_rules! send_req {
 
 pub(crate) use send_req;
 
+#[derive(Debug)]
 pub struct ChannelSendError;
 
 impl ChannelSendError {
@@ -34,8 +37,10 @@ impl std::fmt::Display for ChannelSendError {
 }
 
 impl IntoResponse for ChannelSendError {
-    fn into_response(self) -> axum::response::Response {
-        (StatusCode::INTERNAL_SERVER_ERROR, Self::MSG).into_response()
+    fn into_response(self) -> FullResponse {
+        let mut resp = Self::MSG.into_response();
+        *resp.status_mut() = StatusCode::INTERNAL_SERVER_ERROR;
+        resp
     }
 }
 
