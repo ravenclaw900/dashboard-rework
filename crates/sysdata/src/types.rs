@@ -1,5 +1,3 @@
-use std::time::Duration;
-
 #[derive(Clone)]
 pub struct UsageData {
     pub used: u64,
@@ -21,7 +19,7 @@ pub struct ProcessData {
     pub cpu: f32,
     pub status: String,
     pub name: String,
-    pub runtime: Duration,
+    pub runtime: u64,
 }
 
 #[derive(serde::Deserialize)]

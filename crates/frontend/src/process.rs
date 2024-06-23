@@ -125,7 +125,7 @@ fn inner(data: &mut [ProcessData], sort: Column) -> Markup {
                         (pretty_memory)
                     }
                     td {
-                        @let pretty_runtime = format_duration(proc.runtime);
+                        @let pretty_runtime = format_duration(std::time::Duration::from_secs(proc.runtime));
                         (pretty_runtime)
                     }
                     td {

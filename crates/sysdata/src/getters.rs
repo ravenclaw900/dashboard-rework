@@ -9,7 +9,7 @@ fn cpu(sys: &mut System) -> f32 {
 
 #[allow(clippy::cast_precision_loss)]
 fn memory(sys: &mut System) -> (types::UsageData, types::UsageData) {
-    // refresh_memory refreshes RAM and Swap, but used_memory and used_swap return RAM and Swap, respectively
+    // refresh_memory refreshes both RAM and Swap, but used_memory and used_swap return RAM and Swap, respectively
     sys.refresh_memory();
 
     let ram_used = sys.used_memory();
@@ -63,7 +63,7 @@ pub fn process(sys: &mut System) -> Vec<types::ProcessData> {
             cpu: round_percent(proc.cpu_usage()),
             status: proc.status().to_string(),
             name: proc.name().to_string(),
-            runtime: std::time::Duration::from_secs(proc.run_time()),
+            runtime: proc.run_time(),
         })
     }
 
@@ -79,7 +79,9 @@ pub async fn host() -> types::HostData {
     let mut networks = Networks::new();
     networks.refresh_list();
 
-    let net_data = networks.iter().find(|(k, _)| !k.contains("lo"));
+    let net_data = networks
+        .iter()
+        .find(|(k, _)| k.contains("eth") || k.contains("wlan"));
     let net_interface = net_data.map(|(k, _)| k.clone()).unwrap_or_else(unknown);
     let ip_addr = net_data
         .and_then(|(_, v)| v.ip_networks().first().map(|x| x.addr.to_string()))
