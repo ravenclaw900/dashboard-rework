@@ -49,10 +49,12 @@ fn inner(data: &SystemData) -> Markup {
         div .meter-container {
             div #ram-meter style={"width:" (data.ram.percent) "%"} {}
         }
-        br;
-        "Swap usage: " (pretty_swap_used) " / " (pretty_swap_total)
-        div .meter-container {
-            div #swap-meter style={"width:" (data.swap.percent) "%"} {}
+        @if data.swap.total > 0 {
+            br;
+            "Swap usage: " (pretty_swap_used) " / " (pretty_swap_total)
+            div .meter-container {
+                div #swap-meter style={"width:" (data.swap.percent) "%"} {}
+            }
         }
     }
 }
