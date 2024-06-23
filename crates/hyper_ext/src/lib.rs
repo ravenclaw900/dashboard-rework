@@ -25,6 +25,7 @@ macro_rules! router {
     }};
 
     (@call $req:expr, $state:expr, $handler:expr) => { $handler() };
+    (@call $req:expr, $state:expr, $handler:expr, async) => { $handler().await };
     (@call $req:expr, $state:expr, $handler:expr, async, with_req) => { $handler($req).await };
     (@call $req:expr, $state:expr, $handler:expr, with_req) => { $handler($req) };
     (@call $req:expr, $state:expr, $handler:expr, with_state) => { $handler($state).await };
