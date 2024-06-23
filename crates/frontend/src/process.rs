@@ -1,11 +1,11 @@
 use humantime::format_duration;
-use hyper_ext::{IncomingReq, UriExt};
+use hyper_ext::{ErrorResponse, IncomingReq, UriExt};
 use maud::{html, Markup, PreEscaped};
 use pretty_bytes_typed::pretty_bytes_binary;
 use serde::Deserialize;
 use sysdata::{types::ProcessData, Request, RequestTx};
 
-use crate::layout::{main_template, send_req, ChannelSendError};
+use crate::layout::{main_template, send_req};
 
 #[derive(Deserialize)]
 pub struct ProcessQuery {
@@ -37,7 +37,7 @@ impl Column {
 }
 
 #[tracing::instrument(name = "process_page", skip_all, err)]
-pub async fn page(tx: RequestTx) -> Result<Markup, ChannelSendError> {
+pub async fn page(tx: RequestTx) -> Result<Markup, ErrorResponse> {
     let mut data = send_req!(Request::Process, tx)?;
 
     let main = html! {
@@ -55,7 +55,7 @@ pub async fn page(tx: RequestTx) -> Result<Markup, ChannelSendError> {
 }
 
 #[tracing::instrument(name = "process_fragment", skip_all, err)]
-pub async fn fragment(req: IncomingReq, tx: RequestTx) -> Result<Markup, ChannelSendError> {
+pub async fn fragment(req: IncomingReq, tx: RequestTx) -> Result<Markup, ErrorResponse> {
     let mut data = send_req!(Request::Process, tx)?;
 
     let query: ProcessQuery = req

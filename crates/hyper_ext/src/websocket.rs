@@ -1,6 +1,6 @@
 use std::future::Future;
 
-use crate::{FullResponse, IncomingReq, IntoResponse};
+use crate::{ErrorResponse, FullResponse, IncomingReq, IntoResponse};
 
 pub fn upgrade_websocket<F, Fut>(mut req: IncomingReq, callback: F) -> FullResponse
 where
@@ -8,15 +8,11 @@ where
     Fut: Future<Output = ()> + Send + 'static,
 {
     if !hyper_tungstenite::is_upgrade_request(&req) {
-        let mut resp = "Expected websocket upgrade".into_response();
-        *resp.status_mut() = hyper::StatusCode::BAD_REQUEST;
-        return resp;
+        return ErrorResponse::new_client_err("Expected websocket upgrade").into_response();
     }
 
     let Ok((resp, websocket)) = hyper_tungstenite::upgrade(&mut req, None) else {
-        let mut resp = "Bad websocket upgrade".into_response();
-        *resp.status_mut() = hyper::StatusCode::BAD_REQUEST;
-        return resp;
+        return ErrorResponse::new_client_err("Bad websocket upgrade headers").into_response();
     };
 
     tokio::spawn(async {

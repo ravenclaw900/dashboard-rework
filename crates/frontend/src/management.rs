@@ -1,13 +1,14 @@
 use std::time::Duration;
 
 use humantime::format_duration;
+use hyper_ext::ErrorResponse;
 use maud::{html, Markup};
 use sysdata::{Request, RequestTx};
 
-use crate::layout::{main_template, send_req, ChannelSendError};
+use crate::layout::{main_template, send_req};
 
 #[tracing::instrument(name = "management_page", skip_all, err)]
-pub async fn page(tx: RequestTx) -> Result<Markup, ChannelSendError> {
+pub async fn page(tx: RequestTx) -> Result<Markup, ErrorResponse> {
     let (data, uptime) = send_req!(Request::Host, tx)?;
 
     let pretty_uptime = format_duration(Duration::from_secs(uptime));

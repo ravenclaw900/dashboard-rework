@@ -1,48 +1,28 @@
-use hyper::StatusCode;
-use hyper_ext::{FullResponse, IntoResponse};
-// use axum::{http::StatusCode, response::IntoResponse};
 use maud::{html, Markup, PreEscaped, DOCTYPE};
 
 // Why did I put this macro here? Mostly because this module is already imported by all of the others.
 macro_rules! send_req {
     ($req:path, $chan:ident) => {
         'a: {
-            use crate::layout::ChannelSendError;
+            use hyper_ext::ErrorResponse;
 
             let (resp_tx, resp_rx) = tokio::sync::oneshot::channel();
             let send_req = $chan.send($req(resp_tx)).await;
 
             if send_req.is_err() {
-                break 'a Err(ChannelSendError);
+                break 'a Err(ErrorResponse::new_server_err(
+                    "Failed to request system data",
+                ));
             }
 
-            resp_rx.await.map_err(|_| ChannelSendError)
+            resp_rx
+                .await
+                .map_err(|_| ErrorResponse::new_server_err("Failed to request system data"))
         }
     };
 }
 
 pub(crate) use send_req;
-
-#[derive(Debug)]
-pub struct ChannelSendError;
-
-impl ChannelSendError {
-    const MSG: &'static str = "Failed to request system data";
-}
-
-impl std::fmt::Display for ChannelSendError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", Self::MSG)
-    }
-}
-
-impl IntoResponse for ChannelSendError {
-    fn into_response(self) -> FullResponse {
-        let mut resp = Self::MSG.into_response();
-        *resp.status_mut() = StatusCode::INTERNAL_SERVER_ERROR;
-        resp
-    }
-}
 
 pub struct Document {
     pub markup: Markup,

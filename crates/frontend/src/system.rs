@@ -1,11 +1,12 @@
+use hyper_ext::ErrorResponse;
 use maud::{html, Markup};
 use pretty_bytes_typed::pretty_bytes_binary;
 use sysdata::{types::SystemData, Request, RequestTx};
 
-use crate::layout::{main_template, send_req, ChannelSendError};
+use crate::layout::{main_template, send_req};
 
 #[tracing::instrument(name = "system_page", skip_all, err)]
-pub async fn page(tx: RequestTx) -> Result<Markup, ChannelSendError> {
+pub async fn page(tx: RequestTx) -> Result<Markup, ErrorResponse> {
     let data = send_req!(Request::System, tx)?;
 
     let main = html! {
@@ -25,7 +26,7 @@ pub async fn page(tx: RequestTx) -> Result<Markup, ChannelSendError> {
 }
 
 #[tracing::instrument(name = "system_fragment", skip_all, err)]
-pub async fn fragment(tx: RequestTx) -> Result<Markup, ChannelSendError> {
+pub async fn fragment(tx: RequestTx) -> Result<Markup, ErrorResponse> {
     let data = send_req!(Request::System, tx)?;
 
     Ok(inner(&data))
