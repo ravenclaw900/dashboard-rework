@@ -22,6 +22,9 @@ impl Display for ErrorResponse {
 }
 
 impl ErrorResponse {
+    pub const CHANNEL_MSG: &'static str = "Failed to request system data";
+    pub const QUERY_MSG: &'static str = "Bad query";
+
     pub fn new_client_err(msg: &str) -> Self {
         Self {
             msg: msg.to_string(),

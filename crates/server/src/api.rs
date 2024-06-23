@@ -1,12 +1,13 @@
 use config::CONFIG;
 use hyper::{header, StatusCode};
 use hyper_ext::{
-    upgrade_websocket, FullResponse, IncomingReq, IntoResponse, RequestExt, ResponseExt, UriExt,
-    WsMessage,
+    upgrade_websocket, ErrorResponse, FullResponse, IncomingReq, IntoResponse, RequestExt,
+    ResponseExt, UriExt, WsMessage,
 };
 use pty_process::Size;
 use serde::Deserialize;
 use sysdata::{Request, RequestTx};
+use tracing::instrument;
 
 pub async fn login(req: IncomingReq) -> FullResponse {
     let body = req.into_body_bytes().await;
@@ -41,12 +42,18 @@ pub struct ProcessSignalQuery {
     signal: sysdata::types::ProcessSignal,
 }
 
-pub async fn process_signal(req: IncomingReq, tx: RequestTx) {
-    let query: ProcessSignalQuery = req.uri().deserialize_query().unwrap();
+#[instrument(skip_all, err)]
+pub async fn process_signal(req: IncomingReq, tx: RequestTx) -> Result<(), ErrorResponse> {
+    let query: ProcessSignalQuery = req
+        .uri()
+        .deserialize_query()
+        .map_err(|_| ErrorResponse::new_client_err(ErrorResponse::QUERY_MSG))?;
 
     tx.send(Request::ProcessSignal(query.pid, query.signal))
         .await
-        .unwrap();
+        .map_err(|_| ErrorResponse::new_server_err("Failed to send message"))?;
+
+    Ok(())
 }
 
 pub fn terminal(req: IncomingReq) -> FullResponse {

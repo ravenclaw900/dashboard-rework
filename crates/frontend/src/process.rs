@@ -61,7 +61,7 @@ pub async fn fragment(req: IncomingReq, tx: RequestTx) -> Result<Markup, ErrorRe
     let query: ProcessQuery = req
         .uri()
         .deserialize_query()
-        .expect("I shouldn't panic here but whatever");
+        .map_err(|_| ErrorResponse::new_client_err(ErrorResponse::QUERY_MSG))?;
 
     Ok(inner(&mut data, query.sort))
 }

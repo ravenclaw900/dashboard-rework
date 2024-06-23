@@ -10,14 +10,12 @@ macro_rules! send_req {
             let send_req = $chan.send($req(resp_tx)).await;
 
             if send_req.is_err() {
-                break 'a Err(ErrorResponse::new_server_err(
-                    "Failed to request system data",
-                ));
+                break 'a Err(ErrorResponse::new_server_err(ErrorResponse::CHANNEL_MSG));
             }
 
             resp_rx
                 .await
-                .map_err(|_| ErrorResponse::new_server_err("Failed to request system data"))
+                .map_err(|_| ErrorResponse::new_server_err(ErrorResponse::CHANNEL_MSG))
         }
     };
 }
