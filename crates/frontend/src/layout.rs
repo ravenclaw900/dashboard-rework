@@ -86,7 +86,7 @@ fn footer() -> Markup {
         footer {
             "DietPi Dashboard v"(config::VERSION)" by ravenclaw900"
             a href="https://github.com/ravenclaw900/dashboard-rework" target="_blank" {
-                (PreEscaped(iconify::svg!("cib:github", width="32", color="black")))
+                (PreEscaped(iconify::svg!("cib:github", width="28", color="black")))
             }
         }
     }

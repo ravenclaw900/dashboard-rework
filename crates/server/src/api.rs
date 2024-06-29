@@ -56,22 +56,30 @@ pub async fn process_signal(req: IncomingReq, tx: RequestTx) -> Result<(), Error
     Ok(())
 }
 
-pub fn terminal(req: IncomingReq) -> FullResponse {
+pub fn terminal(req: IncomingReq) -> Result<FullResponse, ErrorResponse> {
     use futures_util::{SinkExt, StreamExt};
     use pty_process::{Command, Pty};
     use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
-    upgrade_websocket(req, |mut socket| async move {
-        let mut pty = Pty::new().unwrap();
-        let mut cmd = Command::new("bash");
-        let mut child = cmd.spawn(&pty.pts().unwrap()).unwrap();
+    // Hoist some of the work out of the closure, so an error can be easily returned
+    let mut pty = Pty::new().map_err(|_| ErrorResponse::new_server_err("failed to spawn pty"))?;
+    let pts = pty
+        .pts()
+        .map_err(|_| ErrorResponse::new_server_err("failed to get pts from pty"))?;
+    let mut cmd = Command::new("bash");
+    let mut child = cmd
+        .spawn(&pts)
+        .map_err(|_| ErrorResponse::new_server_err("failed to spawn child process"))?;
 
+    Ok(upgrade_websocket(req, |mut socket| async move {
         let mut data = [0_u8; 256];
 
         loop {
             tokio::select! {
                 Ok(num_read) = pty.read(&mut data) => {
-                    if socket.send(WsMessage::Binary(data[..num_read].to_vec())).await.is_err() {
+                    let send_result = socket.send(WsMessage::Binary(data[..num_read].to_vec())).await;
+                    // If sending fails, socket was likely closed on the other end
+                    if send_result.is_err() {
                         break;
                     }
                 }
@@ -80,6 +88,8 @@ pub fn terminal(req: IncomingReq) -> FullResponse {
                         break;
                     };
                     match msg {
+                        // I don't like doing it like this (always a chance that someone manages to input their own size message)
+                        // but I'm not sure there's a much more elegant way
                         WsMessage::Text(size) if size.starts_with("size") => {
                             let size = size.trim_start_matches("size");
                             let Some((cols, rows)) = size
@@ -88,10 +98,15 @@ pub fn terminal(req: IncomingReq) -> FullResponse {
                             else {
                                 continue;
                             };
-                            pty.resize(Size::new(rows, cols)).unwrap();
+                            // Ignore resize result, likely doesn't necessarily mean pty is closed
+                            let _ = pty.resize(Size::new(rows, cols));
                         }
                         WsMessage::Binary(_) | WsMessage::Text(_) => {
-                            pty.write_all(&msg.into_data()).await.unwrap();
+                            let write_res = pty.write_all(&msg.into_data()).await;
+                            // If writing to pty fails, pty is closed and terminal should close
+                            if write_res.is_err() {
+                                break;
+                            }
                         }
                         _ => {}
                     }
@@ -101,5 +116,5 @@ pub fn terminal(req: IncomingReq) -> FullResponse {
 
         let _ = child.kill().await;
         let _ = child.wait().await;
-    })
+    }))
 }
