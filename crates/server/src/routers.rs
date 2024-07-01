@@ -34,8 +34,8 @@ pub async fn router(
     let resp = router!(req, tx, {
             // Static files
             GET "/static/favicon.png" => static_files::favicon;
-            GET "/static/main.css" => static_files::index_css;
-            GET "/static/vars.css" => static_files::css_vars;
+            GET "/static/main.css" => static_files::main_css;
+            GET "/static/vars.css" => static_files::vars_css;
             GET "/static/xterm.css" => static_files::xterm_css;
             GET "/static/htmx.js" => static_files::htmx;
             GET "/static/xterm.js" => static_files::xterm;

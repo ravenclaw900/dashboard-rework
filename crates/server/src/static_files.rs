@@ -34,6 +34,6 @@ static_file!(
 );
 
 // Other static files
-static_file!(css_vars, "vars.css", CSS_CONTENT_HEADER);
-static_file!(index_css, "main.css", CSS_CONTENT_HEADER);
+static_file!(vars_css, "vars.css", CSS_CONTENT_HEADER);
+static_file!(main_css, "main.css", CSS_CONTENT_HEADER);
 static_file!(favicon, "favicon.png", "image/png");
