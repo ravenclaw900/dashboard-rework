@@ -5,7 +5,8 @@ use pretty_bytes_typed::pretty_bytes_binary;
 use serde::Deserialize;
 use sysdata::{types::ProcessData, Request, RequestTx};
 
-use crate::layout::{main_template, send_req};
+use crate::layout::main_template;
+use crate::util::{send_req, Document};
 
 #[derive(Deserialize)]
 pub struct ProcessQuery {
@@ -51,7 +52,8 @@ pub async fn page(tx: RequestTx) -> Result<Markup, ErrorResponse> {
         }
     };
 
-    Ok(main_template(&main.into()))
+    let document = Document::new(main).with_css(include_str!("process.css"));
+    Ok(main_template(&document))
 }
 
 #[tracing::instrument(name = "process_fragment", skip_all, err)]
@@ -131,21 +133,19 @@ fn inner(data: &mut [ProcessData], sort: Column) -> Markup {
                         (pretty_runtime)
                     }
                     td {
-                        div ."actions-cell" {
-                            button title="Terminate" hx-post={"/api/process?signal=term&pid=" (proc.pid)} hx-swap="none" {
-                                (PreEscaped(iconify::svg!("fa6-solid:ban")))
+                        button title="Terminate" hx-post={"/api/process?signal=term&pid=" (proc.pid)} hx-swap="none" {
+                            (PreEscaped(iconify::svg!("fa6-solid:ban")))
+                        }
+                        button title="Kill" hx-post={"/api/process?signal=kill&pid=" (proc.pid)} hx-swap="none" {
+                            (PreEscaped(iconify::svg!("fa6-solid:skull")))
+                        }
+                        @if proc.status == "Stopped" {
+                            button title="Resume" hx-post={"/api/process?signal=resume&pid=" (proc.pid)} hx-swap="none" {
+                                (PreEscaped(iconify::svg!("fa6-solid:play")))
                             }
-                            button title="Kill" hx-post={"/api/process?signal=kill&pid=" (proc.pid)} hx-swap="none" {
-                                (PreEscaped(iconify::svg!("fa6-solid:skull")))
-                            }
-                            @if proc.status == "Stopped" {
-                                button title="Resume" hx-post={"/api/process?signal=resume&pid=" (proc.pid)} hx-swap="none" {
-                                    (PreEscaped(iconify::svg!("fa6-solid:play")))
-                                }
-                            } @else {
-                                button title="Stop" hx-post={"/api/process?signal=stop&pid=" (proc.pid)} hx-swap="none" {
-                                    (PreEscaped(iconify::svg!("fa6-solid:pause")))
-                                }
+                        } @else {
+                            button title="Stop" hx-post={"/api/process?signal=stop&pid=" (proc.pid)} hx-swap="none" {
+                                (PreEscaped(iconify::svg!("fa6-solid:pause")))
                             }
                         }
                     }

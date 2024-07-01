@@ -10,33 +10,30 @@ macro_rules! static_file {
             let body = include_bytes!(concat!(env!("CARGO_MANIFEST_DIR"), "/static/", $file));
 
             let mut resp = body.into_response();
-            resp.insert_header(header::CONTENT_TYPE, $content_type);
+            resp.insert_header_static(header::CONTENT_TYPE, $content_type);
             resp
         }
     };
 }
 
-macro_rules! vendored_file {
-    ($name:ident, $file:expr, $header:ident) => {
-        static_file!($name, concat!("vendored/", $file), $header);
-    };
-}
-
-vendored_file!(htmx, "htmx-1.9.10.js", JS_CONTENT_HEADER);
-vendored_file!(xterm, "xterm-5.3.0.js", JS_CONTENT_HEADER);
-vendored_file!(
+// Vendored libraries
+// HTMX
+static_file!(htmx, "vendored/htmx-1.9.10.js", JS_CONTENT_HEADER);
+// xterm
+static_file!(xterm, "vendored/xterm-5.3.0.js", JS_CONTENT_HEADER);
+static_file!(xterm_css, "vendored/xterm-5.3.0.css", CSS_CONTENT_HEADER);
+static_file!(
     xterm_addon_attach,
-    "xterm-addon-attach-0.9.0.js",
+    "vendored/xterm-addon-attach-0.9.0.js",
     JS_CONTENT_HEADER
 );
-vendored_file!(
+static_file!(
     xterm_addon_fit,
-    "xterm-addon-fit-0.8.0.js",
+    "vendored/xterm-addon-fit-0.8.0.js",
     JS_CONTENT_HEADER
 );
 
-vendored_file!(css_vars, "vars.css", CSS_CONTENT_HEADER);
-vendored_file!(xterm_css, "xterm-5.3.0.css", CSS_CONTENT_HEADER);
-
-static_file!(terminal, "terminal.js", JS_CONTENT_HEADER);
-static_file!(index_css, "index.css", CSS_CONTENT_HEADER);
+// Other static files
+static_file!(css_vars, "vars.css", CSS_CONTENT_HEADER);
+static_file!(index_css, "main.css", CSS_CONTENT_HEADER);
+static_file!(favicon, "favicon.png", "image/png");

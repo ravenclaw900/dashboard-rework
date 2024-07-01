@@ -69,6 +69,9 @@ impl RequestExt for IncomingReq {
     }
 
     fn check_header(&self, name: impl AsHeaderName, f: impl FnOnce(&str) -> bool) -> bool {
-        self.headers().get(name).and_then(|x| x.to_str().ok()).is_some_and(f)
+        self.headers()
+            .get(name)
+            .and_then(|x| x.to_str().ok())
+            .is_some_and(f)
     }
 }

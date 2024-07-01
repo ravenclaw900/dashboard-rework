@@ -3,10 +3,8 @@ use hyper::StatusCode;
 use hyper_ext::{router, HttpResponse, IncomingReq, IntoResponse, ResponseExt};
 use sysdata::RequestTx;
 
-use crate::middleware::login_middleware;
-
 use crate::api;
-use crate::middleware::tracing_middleware;
+use crate::middleware::{login_middleware, tracing_middleware};
 use crate::static_files;
 
 fn fallback() -> HttpResponse {
@@ -35,14 +33,14 @@ pub async fn router(
 
     let resp = router!(req, tx, {
             // Static files
-            GET "/static/index.css" => static_files::index_css;
+            GET "/static/favicon.png" => static_files::favicon;
+            GET "/static/main.css" => static_files::index_css;
             GET "/static/vars.css" => static_files::css_vars;
             GET "/static/xterm.css" => static_files::xterm_css;
             GET "/static/htmx.js" => static_files::htmx;
             GET "/static/xterm.js" => static_files::xterm;
             GET "/static/xterm-addon-attach.js" => static_files::xterm_addon_attach;
             GET "/static/xterm-addon-fit.js" => static_files::xterm_addon_fit;
-            GET "/static/terminal.js" => static_files::terminal;
             // API
             POST "/api/process" => api::process_signal, with_req, with_state;
             GET "/api/terminal" => api::terminal, with_req;

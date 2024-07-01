@@ -87,7 +87,7 @@ nav {
   div {
     justify-content: center;
     background-color: var(--dietpi-dark);
-    font-size: clamp(var(--font-size-2), 2vw, var(--font-size-4));
+    font-size: var(--font-size-4);
   }
 
   a {
@@ -121,7 +121,6 @@ footer {
   font-size: var(--font-size-1);
 }
 
-/* CSS shared between pages */
 section {
   background-color: white;
   border-radius: var(--radius-md);
@@ -151,10 +150,6 @@ table {
 
     th {
       font-weight: var(--font-weight-medium);
-
-      button {
-        width: 100%;
-      }
     }
   }
 
@@ -164,49 +159,5 @@ table {
     &:nth-child(odd) {
       background-color: var(--gray-3);
     }
-  }
-}
-
-/* CSS for system page */
-.meter-container {
-  height: var(--size-3);
-  background-color: var(--gray-3);
-}
-
-.meter-container div {
-  height: 100%;
-  transition: width 500ms;
-}
-
-#cpu-meter {
-  background-color: var(--green-6);
-}
-
-#ram-meter {
-  background-color: var(--red-6);
-}
-
-#swap-meter {
-  background-color: var(--blue-6);
-}
-
-/* CSS for process page */
-.actions-cell {
-  display: flex;
-  justify-content: space-evenly;
-  height: var(--size-8);
-  font-size: var(--font-size-3);
-}
-
-/* CSS for terminal page */
-#terminal {
-  /* Need to use 99% because 100% stops vertical resizing from working */
-  height: 99%;
-}
-
-/* CSS for management page */
-#management-table {
-  td:nth-child(odd) {
-    font-weight: var(--font-weight-semibold);
   }
 }

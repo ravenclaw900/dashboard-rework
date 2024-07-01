@@ -1,0 +1,13 @@
+/* Additional table styles */
+table {
+  th>button {
+    width: 100%;
+  }
+
+  /* Specifically styles the cells containing actions */
+  td:last-child {
+    display: flex;
+    justify-content: space-evenly;
+    font-size: var(--font-size-3);
+  }
+}

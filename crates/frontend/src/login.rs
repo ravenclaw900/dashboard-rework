@@ -1,7 +1,8 @@
 use hyper_ext::IncomingReq;
 use maud::{html, Markup};
 
-use crate::layout;
+use crate::layout::main_template;
+use crate::util::Document;
 
 pub fn page(req: IncomingReq) -> Markup {
     let incorrect = req.uri().query().is_some_and(|x| x.contains("incorrect"));
@@ -19,5 +20,6 @@ pub fn page(req: IncomingReq) -> Markup {
         }
     };
 
-    layout::main_template(&main.into())
+    let document = Document::new(main);
+    main_template(&document)
 }

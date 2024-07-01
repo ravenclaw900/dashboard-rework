@@ -1,0 +1,9 @@
+table {
+  td {
+    padding: var(--size-1);
+
+    &:first-child {
+      font-weight: var(--font-weight-semibold);
+    }
+  }
+}

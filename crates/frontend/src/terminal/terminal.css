@@ -1,0 +1,4 @@
+#terminal {
+    /* Need to use 99% because 100% stops vertical resizing from working */
+    height: 99%;
+}

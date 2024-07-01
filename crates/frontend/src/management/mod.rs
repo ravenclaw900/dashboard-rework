@@ -5,7 +5,8 @@ use hyper_ext::ErrorResponse;
 use maud::{html, Markup};
 use sysdata::{Request, RequestTx};
 
-use crate::layout::{main_template, send_req};
+use crate::layout::main_template;
+use crate::util::{send_req, Document};
 
 #[tracing::instrument(name = "management_page", skip_all, err)]
 pub async fn page(tx: RequestTx) -> Result<Markup, ErrorResponse> {
@@ -59,5 +60,6 @@ pub async fn page(tx: RequestTx) -> Result<Markup, ErrorResponse> {
         }
     };
 
-    Ok(main_template(&main.into()))
+    let document = Document::new(main).with_css(include_str!("management.css"));
+    Ok(main_template(&document))
 }

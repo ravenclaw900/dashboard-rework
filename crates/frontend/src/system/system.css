@@ -1,0 +1,21 @@
+.meter-container {
+  height: var(--size-3);
+  background-color: var(--gray-3);
+}
+
+.meter-container div {
+  height: 100%;
+  transition: width 500ms;
+}
+
+#cpu-meter {
+  background-color: var(--green-6);
+}
+
+#ram-meter {
+  background-color: var(--red-6);
+}
+
+#swap-meter {
+  background-color: var(--blue-6);
+}
