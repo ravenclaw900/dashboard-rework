@@ -90,20 +90,22 @@ fn inner(data: &mut [ProcessData], sort: Column) -> Markup {
     html! {
         // Use 'load polling' technique
         table hx-get={"/process/htmx?sort=" (sort.as_str())} hx-trigger="load delay:2s" hx-swap="outerHTML" hx-target="this" {
-            tr {
-                @for header in headers {
-                    th {
-                        button hx-get={"/process/htmx?sort=" (header.1.as_str())} {
-                            // Space to add some space between header and sort icon
-                            (header.0) " "
-                            @if sort == header.1 {
-                                (PreEscaped(iconify::svg!("fa6-solid:sort")))
+            thead {
+                tr {
+                    @for header in headers {
+                        th {
+                            button hx-get={"/process/htmx?sort=" (header.1.as_str())} {
+                                // Space to add some space between header and sort icon
+                                (header.0) " "
+                                @if sort == header.1 {
+                                    (PreEscaped(iconify::svg!("fa6-solid:sort")))
+                                }
                             }
                         }
                     }
-                }
-                th {
-                    "Actions"
+                    th {
+                        "Actions"
+                    }
                 }
             }
             @for proc in data {

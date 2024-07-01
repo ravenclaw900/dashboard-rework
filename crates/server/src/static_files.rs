@@ -1,12 +1,12 @@
 use hyper::header;
-use hyper_ext::{FullResponse, IntoResponse, ResponseExt};
+use hyper_ext::{HttpResponse, IntoResponse, ResponseExt};
 
 const JS_CONTENT_HEADER: &str = "application/javascript";
 const CSS_CONTENT_HEADER: &str = "text/css";
 
 macro_rules! static_file {
     ($name:ident, $file:expr, $content_type:expr) => {
-        pub fn $name() -> FullResponse {
+        pub fn $name() -> HttpResponse {
             let body = include_bytes!(concat!(env!("CARGO_MANIFEST_DIR"), "/static/", $file));
 
             let mut resp = body.into_response();

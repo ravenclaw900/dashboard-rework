@@ -1,6 +1,6 @@
 use config::CONFIG;
 use hyper::StatusCode;
-use hyper_ext::{router, FullResponse, IncomingReq, IntoResponse, ResponseExt};
+use hyper_ext::{router, HttpResponse, IncomingReq, IntoResponse, ResponseExt};
 use sysdata::RequestTx;
 
 use crate::middleware::login_middleware;
@@ -9,13 +9,13 @@ use crate::api;
 use crate::middleware::tracing_middleware;
 use crate::static_files;
 
-fn fallback() -> FullResponse {
+fn fallback() -> HttpResponse {
     let mut resp = "404 not found".into_response();
     *resp.status_mut() = StatusCode::NOT_FOUND;
     resp
 }
 
-fn system_redirect() -> FullResponse {
+fn system_redirect() -> HttpResponse {
     let mut resp = "".into_response();
     resp.redirect("/system");
     resp
@@ -24,7 +24,7 @@ fn system_redirect() -> FullResponse {
 pub async fn router(
     req: IncomingReq,
     tx: RequestTx,
-) -> Result<FullResponse, std::convert::Infallible> {
+) -> Result<HttpResponse, std::convert::Infallible> {
     tracing_middleware(&req);
 
     if CONFIG.auth.enable_auth {

@@ -7,14 +7,15 @@ license.workspace = true
 
 [dependencies]
 async-trait = "0.1.80"
-http-body-util.workspace = true
+futures-core = "0.3.30"
+http-body-util = "0.1.2"
 hyper.workspace = true
-hyper-tungstenite = "0.14.0"
+hyper-util = { version = "0.1.6", features = ["tokio"] }
 maud.workspace = true
 serde.workspace = true
 serde_urlencoded = "0.7.1"
-sysdata = { path = "../sysdata" }
 tokio.workspace = true
+tokio-tungstenite = "0.23.1"
 
 [lints]
 workspace = true

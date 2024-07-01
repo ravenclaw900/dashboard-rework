@@ -142,27 +142,28 @@ section {
 /* Light border, alternating row colors */
 table {
   width: 100%;
-  /* border-spacing: 0px; */
 
   border: var(--gray-0) solid var(--border-size-2);
 
-  th {
+  thead>tr {
     background-color: var(--dietpi-light);
     height: var(--size-6);
 
-    button {
-      width: 100%;
+    th {
       font-weight: var(--font-weight-medium);
+
+      button {
+        width: 100%;
+      }
     }
   }
 
-  tr:nth-child(odd) {
-    background-color: var(--gray-3);
-  }
-
-  td {
-    padding: var(--size-1);
+  tbody>tr {
     border-bottom: var(--gray-6) solid var(--border-size-1);
+
+    &:nth-child(odd) {
+      background-color: var(--gray-3);
+    }
   }
 }
 
@@ -194,10 +195,7 @@ table {
   display: flex;
   justify-content: space-evenly;
   height: var(--size-8);
-
-  * {
-    font-size: var(--font-size-3);
-  }
+  font-size: var(--font-size-3);
 }
 
 /* CSS for terminal page */

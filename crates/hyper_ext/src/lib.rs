@@ -1,14 +1,14 @@
 mod error;
 mod ext_traits;
-mod into_response;
+mod response_body;
 mod websocket;
 
-pub type FullResponse = hyper::Response<http_body_util::Full<hyper::body::Bytes>>;
+pub type HttpResponse = hyper::Response<ResponseBody>;
 pub type IncomingReq = hyper::Request<hyper::body::Incoming>;
 
 pub use error::ErrorResponse;
 pub use ext_traits::{RequestExt, ResponseExt, UriExt};
-pub use into_response::IntoResponse;
+pub use response_body::{IntoResponse, ResponseBody};
 pub use websocket::{upgrade_websocket, WsMessage};
 
 #[macro_export]

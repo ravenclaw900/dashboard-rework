@@ -18,7 +18,6 @@ config = { path = "../config" }
 flexible-hyper-server-tls = "0.3.0"
 frontend = { path = "../frontend" }
 futures-util = "0.3.30"
-http-body-util.workspace = true
 hyper.workspace = true
 hyper_ext = { path = "../hyper_ext" }
 pty-process = { version = "0.4.0", features = ["async"] }

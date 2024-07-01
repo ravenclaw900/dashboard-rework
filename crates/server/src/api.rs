@@ -1,7 +1,7 @@
 use config::CONFIG;
 use hyper::{header, StatusCode};
 use hyper_ext::{
-    upgrade_websocket, ErrorResponse, FullResponse, IncomingReq, IntoResponse, RequestExt,
+    upgrade_websocket, ErrorResponse, HttpResponse, IncomingReq, IntoResponse, RequestExt,
     ResponseExt, UriExt, WsMessage,
 };
 use pty_process::Size;
@@ -9,7 +9,7 @@ use serde::Deserialize;
 use sysdata::{Request, RequestTx};
 use tracing::instrument;
 
-pub async fn login(req: IncomingReq) -> FullResponse {
+pub async fn login(req: IncomingReq) -> HttpResponse {
     let body = req.into_body_bytes().await;
     let mut resp = "".into_response();
 
@@ -56,7 +56,7 @@ pub async fn process_signal(req: IncomingReq, tx: RequestTx) -> Result<(), Error
     Ok(())
 }
 
-pub fn terminal(req: IncomingReq) -> Result<FullResponse, ErrorResponse> {
+pub fn terminal(req: IncomingReq) -> Result<HttpResponse, ErrorResponse> {
     use futures_util::{SinkExt, StreamExt};
     use pty_process::{Command, Pty};
     use tokio::io::{AsyncReadExt, AsyncWriteExt};
@@ -71,7 +71,7 @@ pub fn terminal(req: IncomingReq) -> Result<FullResponse, ErrorResponse> {
         .spawn(&pts)
         .map_err(|_| ErrorResponse::new_server_err("failed to spawn child process"))?;
 
-    Ok(upgrade_websocket(req, |mut socket| async move {
+    upgrade_websocket(req, |mut socket| async move {
         let mut data = [0_u8; 256];
 
         loop {
@@ -116,5 +116,5 @@ pub fn terminal(req: IncomingReq) -> Result<FullResponse, ErrorResponse> {
 
         let _ = child.kill().await;
         let _ = child.wait().await;
-    }))
+    })
 }

@@ -48,7 +48,7 @@ impl ErrorResponse {
 }
 
 impl IntoResponse for ErrorResponse {
-    fn into_response(self) -> crate::FullResponse {
+    fn into_response(self) -> crate::HttpResponse {
         let mut resp = self.msg.into_response();
         *resp.status_mut() = self.code;
         resp

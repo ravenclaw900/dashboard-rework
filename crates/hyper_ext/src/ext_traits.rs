@@ -1,10 +1,10 @@
 use async_trait::async_trait;
 use http_body_util::BodyExt;
 use hyper::body::Bytes;
-use hyper::header::{self, HeaderValue, IntoHeaderName};
+use hyper::header::{self, AsHeaderName, HeaderValue, IntoHeaderName};
 use hyper::{StatusCode, Uri};
 
-use crate::{FullResponse, IncomingReq};
+use crate::{HttpResponse, IncomingReq};
 
 pub trait UriExt {
     fn deserialize_query<'de, T: serde::Deserialize<'de>>(
@@ -31,18 +31,18 @@ impl UriExt for Uri {
 }
 
 pub trait ResponseExt {
-    fn insert_header_static<K: IntoHeaderName>(&mut self, name: K, val: &'static str);
-    fn insert_header<K: IntoHeaderName>(&mut self, name: K, val: &str);
+    fn insert_header_static(&mut self, name: impl IntoHeaderName, val: &'static str);
+    fn insert_header(&mut self, name: impl IntoHeaderName, val: &str);
     fn redirect(&mut self, path: &'static str);
 }
 
-impl ResponseExt for FullResponse {
-    fn insert_header_static<K: IntoHeaderName>(&mut self, name: K, val: &'static str) {
+impl ResponseExt for HttpResponse {
+    fn insert_header_static(&mut self, name: impl IntoHeaderName, val: &'static str) {
         let val = HeaderValue::from_static(val);
         self.headers_mut().insert(name, val);
     }
 
-    fn insert_header<K: IntoHeaderName>(&mut self, name: K, val: &str) {
+    fn insert_header(&mut self, name: impl IntoHeaderName, val: &str) {
         // Trust that constructed header is valid
         let val = HeaderValue::from_str(val).unwrap();
         self.headers_mut().insert(name, val);
@@ -57,6 +57,7 @@ impl ResponseExt for FullResponse {
 #[async_trait]
 pub trait RequestExt {
     async fn into_body_bytes(self) -> Bytes;
+    fn check_header(&self, name: impl AsHeaderName, f: impl FnOnce(&HeaderValue) -> bool) -> bool;
 }
 
 #[async_trait]
@@ -65,5 +66,9 @@ impl RequestExt for IncomingReq {
         let body = self.into_body();
         let collected_body = body.collect().await.unwrap();
         collected_body.to_bytes()
+    }
+
+    fn check_header(&self, name: impl AsHeaderName, f: impl FnOnce(&HeaderValue) -> bool) -> bool {
+        self.headers().get(name).is_some_and(f)
     }
 }

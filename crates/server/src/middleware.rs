@@ -1,5 +1,5 @@
 use hyper::HeaderMap;
-use hyper_ext::{FullResponse, IncomingReq, IntoResponse, ResponseExt};
+use hyper_ext::{HttpResponse, IncomingReq, IntoResponse, ResponseExt};
 
 fn validate_token_cookie(headers: &HeaderMap) -> bool {
     // Get Cookie header and attempt to convert it to a string, returning false if either step fails
@@ -17,7 +17,7 @@ fn validate_token_cookie(headers: &HeaderMap) -> bool {
     auth::verify_token(token_cookie)
 }
 
-pub fn login_middleware(req: &IncomingReq) -> Option<FullResponse> {
+pub fn login_middleware(req: &IncomingReq) -> Option<HttpResponse> {
     if validate_token_cookie(req.headers()) {
         // Login is good, no need to redirect
         None
