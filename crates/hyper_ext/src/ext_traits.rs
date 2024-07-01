@@ -57,7 +57,7 @@ impl ResponseExt for HttpResponse {
 #[async_trait]
 pub trait RequestExt {
     async fn into_body_bytes(self) -> Bytes;
-    fn check_header(&self, name: impl AsHeaderName, f: impl FnOnce(&HeaderValue) -> bool) -> bool;
+    fn check_header(&self, name: impl AsHeaderName, f: impl FnOnce(&str) -> bool) -> bool;
 }
 
 #[async_trait]
@@ -68,7 +68,7 @@ impl RequestExt for IncomingReq {
         collected_body.to_bytes()
     }
 
-    fn check_header(&self, name: impl AsHeaderName, f: impl FnOnce(&HeaderValue) -> bool) -> bool {
-        self.headers().get(name).is_some_and(f)
+    fn check_header(&self, name: impl AsHeaderName, f: impl FnOnce(&str) -> bool) -> bool {
+        self.headers().get(name).and_then(|x| x.to_str().ok()).is_some_and(f)
     }
 }

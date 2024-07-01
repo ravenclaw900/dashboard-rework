@@ -22,9 +22,9 @@ where
     Fut: Future<Output = ()> + Send + 'static,
 {
     // Check to see if request is actually a websocket upgrade
-    if !(req.check_header(header::CONNECTION, |val| val.as_bytes() == b"Upgrade")
-        && req.check_header(header::UPGRADE, |val| val.as_bytes() == b"websocket")
-        && req.check_header("Sec-WebSocket-Version", |val| val.as_bytes() == b"13"))
+    if !(req.check_header(header::CONNECTION, |val| val.contains("Upgrade"))
+        && req.check_header(header::UPGRADE, |val| val.contains("websocket"))
+        && req.check_header("Sec-WebSocket-Version", |val| val == "13"))
     {
         return Err(ErrorResponse::new_client_err(
             "Expected websocket v13 upgrade",
