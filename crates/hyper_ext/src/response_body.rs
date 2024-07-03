@@ -1,5 +1,5 @@
 use crate::{HttpResponse, ResponseExt};
-use futures_core::FusedStream;
+use futures_util::stream::{FusedStream, StreamExt};
 use hyper::body::{Body, Bytes, Frame, SizeHint};
 use hyper::header;
 use hyper::Response;
@@ -38,6 +38,38 @@ impl IntoResponse for maud::Markup {
     fn into_response(self) -> HttpResponse {
         let mut resp = self.0.into_response();
         resp.insert_header_static(header::CONTENT_TYPE, "text/html");
+        resp
+    }
+}
+
+impl IntoResponse for datastar::response::FullDatastarResponse {
+    fn into_response(self) -> HttpResponse {
+        let mut resp = self.into_string().into_response();
+
+        resp.insert_header_static(header::CONNECTION, "keep-alive");
+        resp.insert_header_static(header::CONTENT_TYPE, "text/event-stream");
+        resp.insert_header_static(header::CACHE_CONTROL, "no-cache");
+
+        resp
+    }
+}
+
+impl<S> IntoResponse for datastar::response::StreamingDatastarResponse<S>
+where
+    S: FusedStream<Item = datastar::message::DatastarMessage> + Send + 'static,
+{
+    fn into_response(self) -> HttpResponse {
+        let stream = self
+            .into_fused_stream()
+            .map(|x| Bytes::from(x.into_string()));
+        let body = ResponseBody::Streaming(Box::pin(stream));
+
+        let mut resp = Response::new(body);
+
+        resp.insert_header_static(header::CONNECTION, "keep-alive");
+        resp.insert_header_static(header::CONTENT_TYPE, "text/event-stream");
+        resp.insert_header_static(header::CACHE_CONTROL, "no-cache");
+
         resp
     }
 }
@@ -82,10 +114,10 @@ impl Body for ResponseBody {
 
         match this {
             Self::Empty => Poll::Ready(None),
-            Self::Full(data) => {
-                // Take the data out of self, then set it to Empty so it returns None on future polls
-                let data = std::mem::take(data);
-                *this = Self::Empty;
+            Self::Full(_) => {
+                let Self::Full(data) = std::mem::replace(this, Self::Empty) else {
+                    unreachable!();
+                };
 
                 Poll::Ready(Some(Ok(Frame::data(data))))
             }

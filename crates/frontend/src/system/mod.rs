@@ -1,14 +1,13 @@
-use hyper_ext::ErrorResponse;
 use maud::{html, Markup};
 use pretty_bytes_typed::pretty_bytes_binary;
 use sysdata::{types::SystemData, Request, RequestTx};
 
-use crate::layout::{main_template};
-use crate::util::{Document, send_req};
+use crate::layout::main_template;
+use crate::util::{send_req, Document};
 
-#[tracing::instrument(name = "system_page", skip_all, err)]
-pub async fn page(tx: RequestTx) -> Result<Markup, ErrorResponse> {
-    let data = send_req!(Request::System, tx)?;
+#[tracing::instrument(name = "system_page", skip_all)]
+pub async fn page(tx: RequestTx) -> Markup {
+    let data = send_req!(Request::System, tx);
 
     let main = html! {
         main {
@@ -24,14 +23,14 @@ pub async fn page(tx: RequestTx) -> Result<Markup, ErrorResponse> {
     };
 
     let document = Document::new(main).with_css(include_str!("system.css"));
-    Ok(main_template(&document))
+    main_template(&document)
 }
 
-#[tracing::instrument(name = "system_fragment", skip_all, err)]
-pub async fn fragment(tx: RequestTx) -> Result<Markup, ErrorResponse> {
-    let data = send_req!(Request::System, tx)?;
+#[tracing::instrument(name = "system_fragment", skip_all)]
+pub async fn fragment(tx: RequestTx) -> Markup {
+    let data = send_req!(Request::System, tx);
 
-    Ok(inner(&data))
+    inner(&data)
 }
 
 fn inner(data: &SystemData) -> Markup {

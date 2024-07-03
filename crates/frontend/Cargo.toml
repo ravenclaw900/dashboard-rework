@@ -9,7 +9,10 @@ license.workspace = true
 workspace = true
 
 [dependencies]
+async-stream = "0.3.5"
 config = { path = "../config" }
+datastar.workspace = true
+futures-core = "0.3.30"
 humantime = "2.1.0"
 hyper.workspace = true
 hyper_ext = { path = "../hyper_ext" }

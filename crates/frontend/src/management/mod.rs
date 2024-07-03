@@ -1,16 +1,15 @@
 use std::time::Duration;
 
 use humantime::format_duration;
-use hyper_ext::ErrorResponse;
 use maud::{html, Markup};
 use sysdata::{Request, RequestTx};
 
 use crate::layout::main_template;
 use crate::util::{send_req, Document};
 
-#[tracing::instrument(name = "management_page", skip_all, err)]
-pub async fn page(tx: RequestTx) -> Result<Markup, ErrorResponse> {
-    let (data, uptime) = send_req!(Request::Host, tx)?;
+#[tracing::instrument(name = "management_page", skip_all)]
+pub async fn page(tx: RequestTx) -> Markup {
+    let (data, uptime) = send_req!(Request::Host, tx);
 
     let pretty_uptime = format_duration(Duration::from_secs(uptime));
 
@@ -36,7 +35,7 @@ pub async fn page(tx: RequestTx) -> Result<Markup, ErrorResponse> {
                 h2 {
                     "System Information"
                 }
-                table #management-table {
+                table {
                     @for row in rows {
                         tr {
                             td {
@@ -61,5 +60,5 @@ pub async fn page(tx: RequestTx) -> Result<Markup, ErrorResponse> {
     };
 
     let document = Document::new(main).with_css(include_str!("management.css"));
-    Ok(main_template(&document))
+    main_template(&document)
 }

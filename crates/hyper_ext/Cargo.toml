@@ -7,7 +7,8 @@ license.workspace = true
 
 [dependencies]
 async-trait = "0.1.80"
-futures-core = "0.3.30"
+datastar.workspace = true
+futures-util = "0.3.30"
 http-body-util = "0.1.2"
 hyper.workspace = true
 hyper-util = { version = "0.1.6", features = ["tokio"] }

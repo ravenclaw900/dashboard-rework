@@ -37,9 +37,9 @@ impl Column {
     }
 }
 
-#[tracing::instrument(name = "process_page", skip_all, err)]
-pub async fn page(tx: RequestTx) -> Result<Markup, ErrorResponse> {
-    let mut data = send_req!(Request::Process, tx)?;
+#[tracing::instrument(name = "process_page", skip_all)]
+pub async fn page(tx: RequestTx) -> Markup {
+    let mut data = send_req!(Request::Process, tx);
 
     let main = html! {
         main {
@@ -53,12 +53,12 @@ pub async fn page(tx: RequestTx) -> Result<Markup, ErrorResponse> {
     };
 
     let document = Document::new(main).with_css(include_str!("process.css"));
-    Ok(main_template(&document))
+    main_template(&document)
 }
 
 #[tracing::instrument(name = "process_fragment", skip_all, err)]
 pub async fn fragment(req: IncomingReq, tx: RequestTx) -> Result<Markup, ErrorResponse> {
-    let mut data = send_req!(Request::Process, tx)?;
+    let mut data = send_req!(Request::Process, tx);
 
     let query: ProcessQuery = req
         .uri()
