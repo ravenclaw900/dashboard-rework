@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use http_body_util::BodyExt;
 use hyper::body::Bytes;
-use hyper::header::{self, AsHeaderName, HeaderValue, IntoHeaderName};
+use hyper::header::{self, HeaderValue, IntoHeaderName};
 use hyper::{StatusCode, Uri};
 
 use crate::{HttpResponse, IncomingReq};
@@ -57,7 +57,6 @@ impl ResponseExt for HttpResponse {
 #[async_trait]
 pub trait RequestExt {
     async fn into_body_bytes(self) -> Bytes;
-    fn check_header(&self, name: impl AsHeaderName, f: impl FnOnce(&str) -> bool) -> bool;
 }
 
 #[async_trait]
@@ -66,12 +65,5 @@ impl RequestExt for IncomingReq {
         let body = self.into_body();
         let collected_body = body.collect().await.unwrap();
         collected_body.to_bytes()
-    }
-
-    fn check_header(&self, name: impl AsHeaderName, f: impl FnOnce(&str) -> bool) -> bool {
-        self.headers()
-            .get(name)
-            .and_then(|x| x.to_str().ok())
-            .is_some_and(f)
     }
 }

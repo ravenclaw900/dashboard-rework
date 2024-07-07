@@ -1,6 +1,6 @@
 use maud::{html, Markup, PreEscaped, DOCTYPE};
 
-use crate::util::Document;
+use crate::util::{icon, Document};
 
 pub fn main_template(doc: &Document) -> Markup {
     html! {
@@ -61,7 +61,7 @@ fn footer() -> Markup {
         footer {
             "DietPi Dashboard v"(config::VERSION)" by ravenclaw900"
             a href="https://github.com/ravenclaw900/dashboard-rework" target="_blank" {
-                (PreEscaped(iconify::svg!("cib:github", width="28", color="black")))
+                (icon!("cib:github", width="28", color="black"))
             }
         }
     }
@@ -75,19 +75,19 @@ fn nav_menu() -> Markup {
             }
             ul {
                 a href="/system" {
-                    (PreEscaped(iconify::svg!("fa6-solid:database")))
+                    (icon!("fa6-solid:database"))
                     "System"
                 }
                 a href="/process" {
-                    (PreEscaped(iconify::svg!("fa6-solid:microchip")))
+                    (icon!("fa6-solid:microchip"))
                     "Processes"
                 }
                 a href="/management" {
-                    (PreEscaped(iconify::svg!("fa6-solid:user")))
+                    (icon!("fa6-solid:user"))
                     "Management"
                 }
                 a href="/terminal" {
-                    (PreEscaped(iconify::svg!("fa6-solid:terminal")))
+                    (icon!("fa6-solid:terminal"))
                     "Terminal"
                 }
             }

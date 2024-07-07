@@ -11,12 +11,11 @@ datastar.workspace = true
 futures-util = "0.3.30"
 http-body-util = "0.1.2"
 hyper.workspace = true
-hyper-util = { version = "0.1.6", features = ["tokio"] }
+hyper-tungstenite = "0.14.0"
 maud.workspace = true
 serde.workspace = true
 serde_urlencoded = "0.7.1"
 tokio.workspace = true
-tokio-tungstenite = "0.23.1"
 
 [lints]
 workspace = true

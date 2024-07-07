@@ -14,6 +14,12 @@ macro_rules! send_req {
 
 pub(crate) use send_req;
 
+macro_rules! icon {
+    ($($tokens:tt)*) => {maud::PreEscaped(iconify::svg!($($tokens)*))};
+}
+
+pub(crate) use icon;
+
 pub struct Document {
     pub markup: Markup,
     pub css: Option<&'static str>,

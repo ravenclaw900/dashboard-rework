@@ -16,7 +16,7 @@ futures-core = "0.3.30"
 humantime = "2.1.0"
 hyper.workspace = true
 hyper_ext = { path = "../hyper_ext" }
-iconify = "0.2.6"
+iconify = "0.3.1"
 maud.workspace = true
 pretty-bytes-typed = "0.2.0"
 serde.workspace = true

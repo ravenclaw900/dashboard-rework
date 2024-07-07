@@ -1,12 +1,12 @@
 use humantime::format_duration;
 use hyper_ext::{ErrorResponse, IncomingReq, UriExt};
-use maud::{html, Markup, PreEscaped};
+use maud::{html, Markup};
 use pretty_bytes_typed::pretty_bytes_binary;
 use serde::Deserialize;
 use sysdata::{types::ProcessData, Request, RequestTx};
 
 use crate::layout::main_template;
-use crate::util::{send_req, Document};
+use crate::util::{icon, send_req, Document};
 
 #[derive(Deserialize)]
 pub struct ProcessQuery {
@@ -100,7 +100,7 @@ fn inner(data: &mut [ProcessData], sort: Column) -> Markup {
                                 // Space to add some space between header and sort icon
                                 (header.0) " "
                                 @if sort == header.1 {
-                                    (PreEscaped(iconify::svg!("fa6-solid:sort")))
+                                    (icon!("fa6-solid:sort"))
                                 }
                             }
                         }
@@ -134,18 +134,18 @@ fn inner(data: &mut [ProcessData], sort: Column) -> Markup {
                     }
                     td {
                         button title="Terminate" hx-post={"/api/process?signal=term&pid=" (proc.pid)} hx-swap="none" {
-                            (PreEscaped(iconify::svg!("fa6-solid:ban")))
+                            (icon!("fa6-solid:ban"))
                         }
                         button title="Kill" hx-post={"/api/process?signal=kill&pid=" (proc.pid)} hx-swap="none" {
-                            (PreEscaped(iconify::svg!("fa6-solid:skull")))
+                            (icon!("fa6-solid:skull"))
                         }
                         @if proc.status == "Stopped" {
                             button title="Resume" hx-post={"/api/process?signal=resume&pid=" (proc.pid)} hx-swap="none" {
-                                (PreEscaped(iconify::svg!("fa6-solid:play")))
+                                (icon!("fa6-solid:play"))
                             }
                         } @else {
                             button title="Stop" hx-post={"/api/process?signal=stop&pid=" (proc.pid)} hx-swap="none" {
-                                (PreEscaped(iconify::svg!("fa6-solid:pause")))
+                                (icon!("fa6-solid:pause"))
                             }
                         }
                     }

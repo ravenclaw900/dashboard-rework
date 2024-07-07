@@ -1,56 +1,33 @@
 use std::future::Future;
 
-use hyper::{header, StatusCode};
-use hyper_util::rt::TokioIo;
-use tokio_tungstenite::tungstenite::handshake::derive_accept_key;
-use tokio_tungstenite::tungstenite::protocol::Role;
-use tokio_tungstenite::WebSocketStream;
+use hyper_tungstenite::HyperWebsocketStream;
 
-use crate::{ErrorResponse, HttpResponse, IncomingReq, IntoResponse, RequestExt, ResponseExt};
+use crate::{ErrorResponse, HttpResponse, IncomingReq, IntoResponse};
 
-type WebSocket = WebSocketStream<TokioIo<hyper::upgrade::Upgraded>>;
-
-// The main reason I'm doing this myself and not using a library like `hyper-tungstenite`
-// is because I need to return a ResponseBody, while `hyper-tungstenite` returns a http_body_util::Full
-// and there seems to be no way to easily convert between them
 pub fn upgrade_websocket<F, Fut>(
     req: IncomingReq,
     callback: F,
 ) -> Result<HttpResponse, ErrorResponse>
 where
-    F: FnOnce(WebSocket) -> Fut + Send + 'static,
+    F: FnOnce(HyperWebsocketStream) -> Fut + Send + 'static,
     Fut: Future<Output = ()> + Send + 'static,
 {
     // Check to see if request is actually a websocket upgrade
-    if !(req.check_header(header::CONNECTION, |val| val.contains("Upgrade"))
-        && req.check_header(header::UPGRADE, |val| val.contains("websocket"))
-        && req.check_header("Sec-WebSocket-Version", |val| val == "13"))
-    {
-        return Err(ErrorResponse::new_client_err(
-            "Expected websocket v13 upgrade",
-        ));
+    if !hyper_tungstenite::is_upgrade_request(&req) {
+        return Err(ErrorResponse::new_client_err("Expected websocket upgrade"));
     }
 
-    let Some(key) = req.headers().get("Sec-WebSocket-Key") else {
-        return Err(ErrorResponse::new_client_err("Missing websocket key"));
+    let Ok((resp, websocket)) = hyper_tungstenite::upgrade(req, None) else {
+        return Err(ErrorResponse::new_client_err("Bad websocket upgrade"));
     };
 
-    let mut resp = "Switching to websocket".into_response();
-    *resp.status_mut() = StatusCode::SWITCHING_PROTOCOLS;
-    resp.insert_header_static(header::CONNECTION, "Upgrade");
-    resp.insert_header_static(header::UPGRADE, "websocket");
-    resp.insert_header("Sec-WebSocket-Accept", &derive_accept_key(key.as_bytes()));
-
     tokio::spawn(async {
-        if let Ok(upgraded) = hyper::upgrade::on(req).await {
-            let stream =
-                WebSocketStream::from_raw_socket(TokioIo::new(upgraded), Role::Server, None);
-
-            callback(stream.await).await;
+        if let Ok(ws) = websocket.await {
+            callback(ws).await;
         }
     });
 
-    Ok(resp)
+    Ok(resp.into_response())
 }
 
-pub use tokio_tungstenite::tungstenite::Message as WsMessage;
+pub use hyper_tungstenite::tungstenite::Message as WsMessage;
