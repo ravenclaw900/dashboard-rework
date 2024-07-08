@@ -9,7 +9,7 @@ license.workspace = true
 workspace = true
 
 [dependencies]
-config = { path = "../config" }
+config = { path = "../config", features = ["frontend"] }
 ct-codecs = "1.1.1"
 ed25519-compact = { version = "2.0.4", default-features = false, features = [
     "random",

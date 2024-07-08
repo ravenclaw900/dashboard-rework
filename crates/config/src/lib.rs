@@ -1,52 +1,65 @@
-use std::{ops::Deref, path::Path, sync::OnceLock};
+use once_cell::sync::Lazy;
+use std::path::Path;
 use toml_edit::DocumentMut;
+use versions::{migrate::migrate_config, Config};
 
-use crate::types::Config;
+mod versions;
 
-mod migrate;
-mod types;
-
-pub static CONFIG: ConfigStatic = ConfigStatic(OnceLock::new());
+pub static CONFIG: Lazy<Config> = Lazy::new(config);
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 
-// Basically equivalent to a LazyLock<Config>
-pub struct ConfigStatic(OnceLock<Config>);
-
-impl Deref for ConfigStatic {
-    type Target = Config;
-
-    fn deref(&self) -> &Self::Target {
-        self.0.get_or_init(config)
-    }
+fn write_config_file(path: &Path, config: &Config) {
+    let config_file = generate_config_file(config);
+    std::fs::write(path, config_file.as_bytes()).expect("failed to write new config file");
 }
 
-fn write_config_file(path: &Path, file_data: &str) {
-    std::fs::write(path, file_data.as_bytes()).expect("failed to write new config file");
+macro_rules! generate_config_file {
+    ($template:literal, $($key:ident = $val:expr),*) => {{
+        use serde::Serialize;
+        use toml_edit::ser::ValueSerializer;
+
+        $( let $key = Serialize::serialize(&($val), ValueSerializer::new()).unwrap(); )*
+
+        format!(include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/templates/", $template)), $($key = $key),*)
+    }};
+}
+
+#[cfg(feature = "frontend")]
+pub fn generate_config_file(config: &Config) -> String {
+    generate_config_file!(
+        "config-frontend.template.toml",
+        port = config.port,
+        log_level = config.log_level,
+        enable_tls = config.enable_tls,
+        key_path = config.key_path,
+        cert_path = config.cert_path,
+        enable_auth = config.enable_auth,
+        privkey_path = config.privkey_path,
+        pubkey_path = config.pubkey_path,
+        hash = config.hash,
+        expiry = config.expiry
+    )
 }
 
 fn config() -> Config {
     let mut cfgpath = std::env::current_exe().expect("couldn't get path to executable");
-    cfgpath.set_file_name("config.toml");
-
-    tracing::info!("Loading config file from {}", cfgpath.display());
+    cfgpath.set_file_name(versions::CONFIG_NAME);
 
     let Ok(toml_str) = std::fs::read_to_string(&cfgpath) else {
-        tracing::warn!("No config file found, generating new one");
-
-        let config_file = migrate::generate_config(&Config::DEFAULT);
-        write_config_file(&cfgpath, &config_file);
-        return Config::DEFAULT;
+        let config = Config::default();
+        write_config_file(&cfgpath, &config);
+        return config;
     };
+
     let toml = toml_str
         .parse::<DocumentMut>()
         .expect("config file is invalid");
 
-    let migration = migrate::migrate(&toml);
+    let (migration_occured, config) = migrate_config(toml);
 
-    if let Some((config_file, config)) = migration {
-        write_config_file(&cfgpath, &config_file);
-        return config;
+    if migration_occured {
+        write_config_file(&cfgpath, &config);
     }
 
-    toml_edit::de::from_document(toml).expect("failed to parse config file")
+    config
 }

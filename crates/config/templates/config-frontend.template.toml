@@ -1,5 +1,3 @@
-CONFIG_VERSION_DO_NOT_CHANGE = 1
-
 # TCP network port
 # - Default: 5252
 port = {port}
@@ -9,8 +7,6 @@ port = {port}
 # - Default: "info"
 log_level = {log_level}
 
-# TLS for HTTPS
-[tls]
 # Enable HTTPS mode
 # - Default: false
 enable_tls = {enable_tls}
@@ -19,8 +15,6 @@ cert_path = {cert_path}
 # Path to TLS private key
 key_path = {key_path}
 
-# Password authentication
-[auth]
 # Enable password auth
 # - Default: false
 enable_auth = {enable_auth}
@@ -33,3 +27,5 @@ hash = {hash}
 # Expiry time of login token in seconds
 # - Default: 3600
 expiry = {expiry}
+
+CONFIG_VERSION_DO_NOT_CHANGE = 1

@@ -14,7 +14,7 @@ workspace = true
 
 [dependencies]
 auth = { path = "../auth" }
-config = { path = "../config" }
+config = { path = "../config", features = ["frontend"] }
 flexible-hyper-server-tls = "0.3.0"
 frontend = { path = "../frontend" }
 futures-util = "0.3.30"

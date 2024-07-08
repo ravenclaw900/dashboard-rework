@@ -7,7 +7,7 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 #[must_use]
 pub fn test_password(pass: &[u8]) -> bool {
     let hashed_pass = digest(&SHA512, pass);
-    let expected_pass = Hex::decode_to_vec(&CONFIG.auth.hash, None).unwrap();
+    let expected_pass = Hex::decode_to_vec(&CONFIG.hash, None).unwrap();
 
     if hashed_pass.as_ref() == expected_pass {
         return true;
@@ -17,12 +17,11 @@ pub fn test_password(pass: &[u8]) -> bool {
 
 #[must_use]
 pub fn create_token() -> String {
-    let key_file =
-        std::fs::read(&CONFIG.auth.privkey_path).expect("failed to read secret key file");
+    let key_file = std::fs::read(&CONFIG.privkey_path).expect("failed to read secret key file");
     let key = SecretKey::from_der(&key_file).expect("failed to parse secret key");
 
     let current_time = SystemTime::now();
-    let expiry_time = current_time + Duration::from_secs(CONFIG.auth.expiry);
+    let expiry_time = current_time + Duration::from_secs(CONFIG.expiry.into());
 
     let current_timestamp = current_time.duration_since(UNIX_EPOCH).unwrap().as_secs();
     let expiry_timestamp = expiry_time.duration_since(UNIX_EPOCH).unwrap().as_secs();
@@ -41,12 +40,12 @@ pub fn create_token() -> String {
 
 #[must_use]
 pub fn verify_token(token: &str) -> bool {
-    let key_file = std::fs::read(&CONFIG.auth.pubkey_path).expect("failed to read public key file");
+    let key_file = std::fs::read(&CONFIG.pubkey_path).expect("failed to read public key file");
     let key = PublicKey::from_der(&key_file).expect("failed to parse public key");
 
     // Until key is verified, anything that can fail indicates a possible bad/malformed key
     let token_parts = token.split('.').collect::<Vec<_>>();
-    let [ident, encoded_claims, encoded_sig] = *token_parts.as_slice() else {
+    let [ident, encoded_claims, encoded_sig] = token_parts[..] else {
         return false;
     };
 

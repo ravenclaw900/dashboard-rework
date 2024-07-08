@@ -25,7 +25,7 @@ pub async fn router(
 ) -> Result<HttpResponse, std::convert::Infallible> {
     tracing_middleware(&req);
 
-    if CONFIG.auth.enable_auth {
+    if CONFIG.enable_auth {
         if let Some(redirect) = login_middleware(&req) {
             return Ok(redirect);
         }
@@ -44,7 +44,7 @@ pub async fn router(
             // API
             POST "/api/process" => api::process_signal, with_req, with_state;
             GET "/api/terminal" => api::terminal, with_req;
-            POST "/api/login" if CONFIG.auth.enable_auth => api::login, async, with_req;
+            POST "/api/login" if CONFIG.enable_auth => api::login, async, with_req;
             // Pages
             GET "/" => system_redirect;
             GET "/system" => frontend::system::page, with_state;
@@ -53,7 +53,7 @@ pub async fn router(
             GET "/process/htmx" => frontend::process::fragment, with_req, with_state;
             GET "/management" => frontend::management::page, with_state;
             GET "/terminal" => frontend::terminal::page;
-            GET "/login" if CONFIG.auth.enable_auth => frontend::login::page, with_req;
+            GET "/login" if CONFIG.enable_auth => frontend::login::page, with_req;
             _ => fallback;
         }
     );

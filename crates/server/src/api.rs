@@ -27,7 +27,7 @@ pub async fn login(req: IncomingReq) -> HttpResponse {
 
     let cookie_header = format!(
         "token={}; SameSite=Lax; Max-Age={}; HttpOnly; Path=/",
-        token, CONFIG.auth.expiry
+        token, CONFIG.expiry
     );
 
     resp.insert_header(header::SET_COOKIE, &cookie_header);

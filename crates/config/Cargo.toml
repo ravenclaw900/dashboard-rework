@@ -8,10 +8,11 @@ license.workspace = true
 [lints]
 workspace = true
 
+[features]
+backend = []
+frontend = []
+
 [dependencies]
+once_cell = "1.19.0"
 serde.workspace = true
-toml_edit = { version = "0.22.13", features = [
-    "serde",
-    "parse",
-], default-features = false }
-tracing.workspace = true
+toml_edit = { version = "0.22.13", features = ["serde"] }

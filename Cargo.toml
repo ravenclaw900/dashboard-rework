@@ -6,6 +6,7 @@ members = [
     "crates/config",
     "crates/auth",
     "crates/hyper_ext",
+    "crates/backend",
 ]
 resolver = "2"
 
