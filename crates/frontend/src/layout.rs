@@ -42,10 +42,6 @@ pub fn main_template(doc: &Document) -> Markup {
                 (doc.markup)
 
                 (footer())
-
-                @if let Some(script) = doc.script {
-                    script { (PreEscaped(script)) }
-                }
             }
         }
     }

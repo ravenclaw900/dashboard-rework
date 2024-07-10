@@ -33,7 +33,6 @@ pub(crate) use script;
 pub struct Document {
     pub markup: Markup,
     pub css: Option<&'static str>,
-    pub script: Option<&'static str>,
     pub css_links: &'static [&'static str],
     pub script_links: &'static [&'static str],
 }
@@ -43,7 +42,6 @@ impl Document {
         Self {
             markup,
             css: None,
-            script: None,
             css_links: &[],
             script_links: &[],
         }
@@ -51,11 +49,6 @@ impl Document {
 
     pub const fn with_css(mut self, css: &'static str) -> Self {
         self.css = Some(css);
-        self
-    }
-
-    pub const fn with_script(mut self, script: &'static str) -> Self {
-        self.script = Some(script);
         self
     }
 
