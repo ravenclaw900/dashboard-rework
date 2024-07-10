@@ -1,6 +1,6 @@
 use maud::{html, Markup};
 use pretty_bytes_typed::pretty_bytes_binary;
-use sysdata::{types::SystemData, Request, RequestTx};
+use sysdata::{Request, RequestTx};
 
 use crate::layout::main_template;
 use crate::util::{send_req, Document};

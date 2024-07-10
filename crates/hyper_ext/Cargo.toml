@@ -6,7 +6,6 @@ edition.workspace = true
 license.workspace = true
 
 [dependencies]
-async-trait = "0.1.80"
 http-body-util = "0.1.2"
 hyper.workspace = true
 hyper-tungstenite = "0.14.0"

@@ -1,4 +1,5 @@
-use async_trait::async_trait;
+use std::future::Future;
+
 use http_body_util::BodyExt;
 use hyper::body::Bytes;
 use hyper::header::{self, HeaderValue, IntoHeaderName};
@@ -51,12 +52,10 @@ impl ResponseExt for HttpResponse {
     }
 }
 
-#[async_trait]
 pub trait RequestExt {
-    async fn into_body_bytes(self) -> Bytes;
+    fn into_body_bytes(self) -> impl Future<Output = Bytes>;
 }
 
-#[async_trait]
 impl RequestExt for IncomingReq {
     async fn into_body_bytes(self) -> Bytes {
         let body = self.into_body();
