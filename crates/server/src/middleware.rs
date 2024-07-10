@@ -1,16 +1,7 @@
-use hyper::HeaderMap;
-use hyper_ext::{HttpResponse, IncomingReq, IntoResponse, ResponseExt};
+use hyper_ext::{HttpResponse, IncomingReq, IntoResponse, RequestExt, ResponseExt};
 
-fn validate_token_cookie(headers: &HeaderMap) -> bool {
-    // Get Cookie header and attempt to convert it to a string, returning false if either step fails
-    let Some(cookie_header) = headers.get("Cookie").and_then(|x| x.to_str().ok()) else {
-        return false;
-    };
-
-    // Split by '; ' to get cookie pairs, then split each of those by '=' to get key and value
-    let mut cookies = cookie_header.split("; ").filter_map(|x| x.split_once('='));
-
-    let Some((_, token_cookie)) = cookies.find(|x| x.0 == "token") else {
+fn validate_token_cookie(req: &IncomingReq) -> bool {
+    let Some(token_cookie) = req.get_cookie("token") else {
         return false;
     };
 
@@ -18,12 +9,12 @@ fn validate_token_cookie(headers: &HeaderMap) -> bool {
 }
 
 pub fn login_middleware(req: &IncomingReq) -> Option<HttpResponse> {
-    if validate_token_cookie(req.headers()) {
+    if validate_token_cookie(req) {
         // Login is good, no need to redirect
         None
     } else if req.headers().contains_key("Ajxl-Request") {
         // Insert a script to do redirect if request is from ajaxl
-        let resp = "<script>window.location.href='/'</script>".into_response();
+        let resp = "<script>window.location.href='/login'</script>".into_response();
         Some(resp)
     } else {
         // Otherwise just do a normal redirect

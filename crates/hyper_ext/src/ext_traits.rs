@@ -54,6 +54,7 @@ impl ResponseExt for HttpResponse {
 
 pub trait RequestExt {
     fn into_body_bytes(self) -> impl Future<Output = Bytes>;
+    fn get_cookie(&self, name: &str) -> Option<&str>;
 }
 
 impl RequestExt for IncomingReq {
@@ -61,5 +62,15 @@ impl RequestExt for IncomingReq {
         let body = self.into_body();
         let collected_body = body.collect().await.unwrap();
         collected_body.to_bytes()
+    }
+
+    fn get_cookie(&self, name: &str) -> Option<&str> {
+        let cookie_header = self.headers().get(header::COOKIE)?;
+        // Cookie header should always be valid UTF-8
+        let cookies = cookie_header.to_str().unwrap().split("; ");
+        let mut cookie_pairs = cookies.filter_map(|x| x.split_once('='));
+
+        let pair = cookie_pairs.find(|&(k, _)| k == name);
+        pair.map(|x| x.1)
     }
 }
