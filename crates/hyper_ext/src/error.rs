@@ -22,25 +22,23 @@ impl Display for ErrorResponse {
 }
 
 impl ErrorResponse {
-    pub const QUERY_MSG: &'static str = "Bad query";
-
-    pub fn new_client_err(msg: &str) -> Self {
+    pub fn new_client_err(msg: impl Into<String>) -> Self {
         Self {
-            msg: msg.to_string(),
+            msg: msg.into(),
             code: StatusCode::BAD_REQUEST,
         }
     }
 
-    pub fn new_server_err(msg: &str) -> Self {
+    pub fn new_server_err(msg: impl Into<String>) -> Self {
         Self {
-            msg: msg.to_string(),
+            msg: msg.into(),
             code: StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
 
-    pub fn new_custom(msg: &str, code: StatusCode) -> Self {
+    pub fn new_custom(msg: impl Into<String>, code: StatusCode) -> Self {
         Self {
-            msg: msg.to_string(),
+            msg: msg.into(),
             code,
         }
     }

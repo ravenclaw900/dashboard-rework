@@ -11,12 +11,12 @@ const attachAddon = new AttachAddon.AttachAddon(socket);
 
 term.loadAddon(attachAddon);
 
+const sendSize = () => socket.send(`size${term.cols},${term.rows}`);
+
 // Set initial terminal size once connected
-socket.addEventListener("open", () => {
-    socket.send(`size${term.cols},${term.rows}`);
-});
+socket.addEventListener("open", sendSize);
 
 addEventListener("resize", () => fitAddon.fit());
 
 // Terminal onResize event only fires when the actual number of columns/rows changes
-term.onResize(() => socket.send(`size${term.cols},${term.rows}`));
+term.onResize(sendSize);

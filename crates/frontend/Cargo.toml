@@ -9,14 +9,13 @@ license.workspace = true
 workspace = true
 
 [dependencies]
-async-stream = "0.3.5"
 config = { path = "../config" }
-datastar.workspace = true
 futures-core = "0.3.30"
 humantime = "2.1.0"
 hyper.workspace = true
 hyper_ext = { path = "../hyper_ext" }
 iconify = "0.3.1"
+indoc = "2.0.5"
 maud.workspace = true
 pretty-bytes-typed = "0.2.0"
 serde.workspace = true

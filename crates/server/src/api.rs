@@ -44,10 +44,7 @@ pub struct ProcessSignalQuery {
 
 #[instrument(skip_all, err)]
 pub async fn process_signal(req: IncomingReq, tx: RequestTx) -> Result<(), ErrorResponse> {
-    let query: ProcessSignalQuery = req
-        .uri()
-        .deserialize_query()
-        .map_err(|_| ErrorResponse::new_client_err(ErrorResponse::QUERY_MSG))?;
+    let query: ProcessSignalQuery = req.uri().deserialize_query()?;
 
     tx.send(Request::ProcessSignal(query.pid, query.signal))
         .await

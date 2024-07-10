@@ -4,22 +4,19 @@ use hyper::body::Bytes;
 use hyper::header::{self, HeaderValue, IntoHeaderName};
 use hyper::{StatusCode, Uri};
 
-use crate::{HttpResponse, IncomingReq};
+use crate::{ErrorResponse, HttpResponse, IncomingReq};
 
 pub trait UriExt {
-    fn deserialize_query<'de, T: serde::Deserialize<'de>>(
-        &'de self,
-    ) -> Result<T, serde_urlencoded::de::Error>;
+    fn deserialize_query<'de, T: serde::Deserialize<'de>>(&'de self) -> Result<T, ErrorResponse>;
 
     fn trimmed_path(&self) -> &str;
 }
 
 impl UriExt for Uri {
-    fn deserialize_query<'de, T: serde::Deserialize<'de>>(
-        &'de self,
-    ) -> Result<T, serde_urlencoded::de::Error> {
+    fn deserialize_query<'de, T: serde::Deserialize<'de>>(&'de self) -> Result<T, ErrorResponse> {
         let query = self.query().unwrap_or_default();
         serde_urlencoded::from_str(query)
+            .map_err(|err| ErrorResponse::new_client_err(format!("Bad query: {err}")))
     }
 
     fn trimmed_path(&self) -> &str {

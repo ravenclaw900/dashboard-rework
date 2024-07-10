@@ -37,7 +37,10 @@ pub async fn router(
             GET "/static/main.css" => static_files::main_css;
             GET "/static/vars.css" => static_files::vars_css;
             GET "/static/xterm.css" => static_files::xterm_css;
-            GET "/static/htmx.js" => static_files::htmx;
+            GET "/static/ajaxial.js" => static_files::ajaxial;
+            GET "/static/ajaxial-ext.js" => static_files::ajaxial_ext;
+            GET "/static/idiomorph.js" => static_files::idiomorph;
+            GET "/static/surreal.js" => static_files::surreal;
             GET "/static/xterm.js" => static_files::xterm;
             GET "/static/xterm-addon-attach.js" => static_files::xterm_addon_attach;
             GET "/static/xterm-addon-fit.js" => static_files::xterm_addon_fit;
@@ -48,9 +51,10 @@ pub async fn router(
             // Pages
             GET "/" => system_redirect;
             GET "/system" => frontend::system::page, with_state;
-            GET "/system/htmx" => frontend::system::fragment, with_state;
-            GET "/process" => frontend::process::page, with_state;
-            GET "/process/htmx" => frontend::process::fragment, with_req, with_state;
+            GET "/system/fragment" => frontend::system::fragment, with_state;
+            GET "/process" => frontend::process::page, with_req, with_state;
+            GET "/process/table" => frontend::process::table, with_req, with_state;
+            GET "/process/tbody" => frontend::process::tbody, with_req, with_state;
             GET "/management" => frontend::management::page, with_state;
             GET "/terminal" => frontend::terminal::page;
             GET "/login" if CONFIG.enable_auth => frontend::login::page, with_req;

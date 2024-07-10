@@ -20,6 +20,16 @@ macro_rules! icon {
 
 pub(crate) use icon;
 
+macro_rules! script {
+    ($s:literal) => {
+        maud::html! {
+            script { (maud::PreEscaped(indoc::indoc!($s))) }
+        }
+    };
+}
+
+pub(crate) use script;
+
 pub struct Document {
     pub markup: Markup,
     pub css: Option<&'static str>,

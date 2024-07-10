@@ -1,21 +1,23 @@
 use humantime::format_duration;
-use hyper_ext::{ErrorResponse, IncomingReq, UriExt};
+use hyper_ext::{IncomingReq, UriExt};
 use maud::{html, Markup};
 use pretty_bytes_typed::pretty_bytes_binary;
 use serde::Deserialize;
-use sysdata::{types::ProcessData, Request, RequestTx};
+use sysdata::{Request, RequestTx};
 
 use crate::layout::main_template;
 use crate::util::{icon, send_req, Document};
 
 #[derive(Deserialize)]
 pub struct ProcessQuery {
+    #[serde(default)]
     sort: Column,
 }
 
-#[derive(Deserialize, Clone, Copy, PartialEq)]
+#[derive(Deserialize, Clone, Copy, PartialEq, Default)]
 #[serde(rename_all = "lowercase")]
 enum Column {
+    #[default]
     Pid,
     Name,
     Status,
@@ -37,17 +39,14 @@ impl Column {
     }
 }
 
-#[tracing::instrument(name = "process_page", skip_all)]
-pub async fn page(tx: RequestTx) -> Markup {
-    let mut data = send_req!(Request::Process, tx);
-
+pub async fn page(req: IncomingReq, tx: RequestTx) -> Markup {
     let main = html! {
         main {
             section {
                 h2 {
                     "Processes"
                 }
-                (inner(&mut data, Column::Pid))
+                (table(req, tx).await)
             }
         }
     };
@@ -56,29 +55,10 @@ pub async fn page(tx: RequestTx) -> Markup {
     main_template(&document)
 }
 
-#[tracing::instrument(name = "process_fragment", skip_all, err)]
-pub async fn fragment(req: IncomingReq, tx: RequestTx) -> Result<Markup, ErrorResponse> {
-    let mut data = send_req!(Request::Process, tx);
-
-    let query: ProcessQuery = req
-        .uri()
-        .deserialize_query()
-        .map_err(|_| ErrorResponse::new_client_err(ErrorResponse::QUERY_MSG))?;
-
-    Ok(inner(&mut data, query.sort))
-}
-
-// Clippy seems to get confused by the macro
-#[allow(clippy::branches_sharing_code)]
-fn inner(data: &mut [ProcessData], sort: Column) -> Markup {
-    match sort {
-        Column::Pid => data.sort_unstable_by(|a, b| a.pid.cmp(&b.pid)),
-        Column::Name => data.sort_unstable_by(|a, b| a.name.cmp(&b.name)),
-        Column::Status => data.sort_unstable_by(|a, b| a.status.cmp(&b.status)),
-        Column::Cpu => data.sort_unstable_by(|a, b| a.cpu.total_cmp(&b.cpu)),
-        Column::Mem => data.sort_unstable_by(|a, b| a.mem.cmp(&b.mem)),
-        Column::Runtime => data.sort_unstable_by(|a, b| a.runtime.cmp(&b.runtime)),
-    }
+pub async fn table(req: IncomingReq, tx: RequestTx) -> Markup {
+    // Since default is provided, this can't fail
+    let query: ProcessQuery = req.uri().deserialize_query().unwrap();
+    let sort = query.sort;
 
     let headers = [
         ("PID", Column::Pid),
@@ -90,13 +70,12 @@ fn inner(data: &mut [ProcessData], sort: Column) -> Markup {
     ];
 
     html! {
-        // Use 'load polling' technique
-        table hx-get={"/process/htmx?sort=" (sort.as_str())} hx-trigger="load delay:2s" hx-swap="outerHTML" hx-target="this" {
+        table #process-table {
             thead {
-                tr {
+                tr ajxl-target="#process-table" ajxl-swap="idiomorphOuter" {
                     @for header in headers {
                         th {
-                            button hx-get={"/process/htmx?sort=" (header.1.as_str())} {
+                            button ajxl-path={"/process/table?sort=" (header.1.as_str())} {
                                 // Space to add some space between header and sort icon
                                 (header.0) " "
                                 @if sort == header.1 {
@@ -110,43 +89,72 @@ fn inner(data: &mut [ProcessData], sort: Column) -> Markup {
                     }
                 }
             }
-            @for proc in data {
-                tr {
-                    td {
-                        (proc.pid)
+            tbody ajxl-path={"/process/tbody?sort=" (sort.as_str())} ajxl-event=":load :finish" ajxl-debounce="2000" {
+                (tbody(req, tx).await)
+            }
+        }
+    }
+}
+
+// Clippy seems to get confused by the macro
+#[allow(clippy::branches_sharing_code)]
+pub async fn tbody(req: IncomingReq, tx: RequestTx) -> Markup {
+    // Since default is provided, this can't fail
+    let query: ProcessQuery = req.uri().deserialize_query().unwrap();
+    let sort = query.sort;
+
+    let mut data = send_req!(Request::Process, tx);
+
+    match sort {
+        Column::Pid => data.sort_unstable_by(|a, b| a.pid.cmp(&b.pid)),
+        Column::Name => data.sort_unstable_by(|a, b| a.name.cmp(&b.name)),
+        Column::Status => data.sort_unstable_by(|a, b| a.status.cmp(&b.status)),
+        Column::Cpu => data.sort_unstable_by(|a, b| a.cpu.total_cmp(&b.cpu)),
+        Column::Mem => data.sort_unstable_by(|a, b| a.mem.cmp(&b.mem)),
+        Column::Runtime => data.sort_unstable_by(|a, b| a.runtime.cmp(&b.runtime)),
+    }
+
+    html! {
+        @for proc in data {
+            tr #(proc.pid) {
+                td {
+                    (proc.pid)
+                }
+                td {
+                    (proc.name)
+                }
+                td {
+                    (proc.status)
+                }
+                td {
+                    (proc.cpu)"%"
+                }
+                td {
+                    @let pretty_memory = pretty_bytes_binary(proc.mem, Some(2));
+                    (pretty_memory)
+                }
+                td {
+                    @let pretty_runtime = format_duration(std::time::Duration::from_secs(proc.runtime));
+                    (pretty_runtime)
+                }
+                td {
+                    button title="Terminate" ajxl-path={"/api/process?signal=term&pid=" (proc.pid)} ajxl-method="post"
+                    ajxl-swap="none" ajxl-event="click" {
+                        (icon!("fa6-solid:ban"))
                     }
-                    td {
-                        (proc.name)
+                    button title="Kill" ajxl-path={"/api/process?signal=kill&pid=" (proc.pid)} ajxl-method="post"
+                    ajxl-swap="none" ajxl-event="click" {
+                        (icon!("fa6-solid:skull"))
                     }
-                    td {
-                        (proc.status)
-                    }
-                    td {
-                        (proc.cpu)"%"
-                    }
-                    td {
-                        @let pretty_memory = pretty_bytes_binary(proc.mem, Some(2));
-                        (pretty_memory)
-                    }
-                    td {
-                        @let pretty_runtime = format_duration(std::time::Duration::from_secs(proc.runtime));
-                        (pretty_runtime)
-                    }
-                    td {
-                        button title="Terminate" hx-post={"/api/process?signal=term&pid=" (proc.pid)} hx-swap="none" {
-                            (icon!("fa6-solid:ban"))
+                    @if proc.status == "Stopped" {
+                        button title="Resume" ajxl-path={"/api/process?signal=resume&pid=" (proc.pid)} ajxl-method="post"
+                        ajxl-swap="none" ajxl-event="click" {
+                            (icon!("fa6-solid:play"))
                         }
-                        button title="Kill" hx-post={"/api/process?signal=kill&pid=" (proc.pid)} hx-swap="none" {
-                            (icon!("fa6-solid:skull"))
-                        }
-                        @if proc.status == "Stopped" {
-                            button title="Resume" hx-post={"/api/process?signal=resume&pid=" (proc.pid)} hx-swap="none" {
-                                (icon!("fa6-solid:play"))
-                            }
-                        } @else {
-                            button title="Stop" hx-post={"/api/process?signal=stop&pid=" (proc.pid)} hx-swap="none" {
-                                (icon!("fa6-solid:pause"))
-                            }
+                    } @else {
+                        button title="Stop" ajxl-path={"/api/process?signal=stop&pid=" (proc.pid)} ajxl-method="post"
+                        ajxl-swap="none" ajxl-event="click" {
+                            (icon!("fa6-solid:pause"))
                         }
                     }
                 }

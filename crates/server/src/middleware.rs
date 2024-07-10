@@ -21,14 +21,13 @@ pub fn login_middleware(req: &IncomingReq) -> Option<HttpResponse> {
     if validate_token_cookie(req.headers()) {
         // Login is good, no need to redirect
         None
-    } else if req.headers().contains_key("HX-Request") {
-        // Use htmx to do client-side redirect if request is from htmx
-        let mut resp = "".into_response();
-        resp.insert_header("HX-Redirect", "/login");
+    } else if req.headers().contains_key("Ajxl-Request") {
+        // Insert a script to do redirect if request is from ajaxl
+        let resp = "<script>window.location.href='/'</script>".into_response();
         Some(resp)
     } else {
         // Otherwise just do a normal redirect
-        let mut resp = "Redirecting...".into_response();
+        let mut resp = "Redirecting".into_response();
         resp.redirect("/login");
         Some(resp)
     }

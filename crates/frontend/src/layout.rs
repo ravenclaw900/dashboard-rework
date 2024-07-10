@@ -24,7 +24,14 @@ pub fn main_template(doc: &Document) -> Markup {
                     style { (PreEscaped(css)) }
                 }
 
-                script defer src="/static/htmx.js" {}
+                script src="/static/idiomorph.js" {}
+                script src="/static/ajaxial.js" {}
+                script src="/static/ajaxial-ext.js" {}
+                script src="/static/surreal.js" {}
+
+                @for link in doc.script_links {
+                    script src={"/static/" (link)} {}
+                }
             }
 
             body {
@@ -35,10 +42,6 @@ pub fn main_template(doc: &Document) -> Markup {
                 (doc.markup)
 
                 (footer())
-
-                @for link in doc.script_links {
-                    script src={"/static/" (link)} {}
-                }
 
                 @if let Some(script) = doc.script {
                     script { (PreEscaped(script)) }
@@ -73,23 +76,21 @@ fn nav_menu() -> Markup {
             div {
                 "DietPi Dashboard"
             }
-            ul {
-                a href="/system" {
-                    (icon!("fa6-solid:database"))
-                    "System"
-                }
-                a href="/process" {
-                    (icon!("fa6-solid:microchip"))
-                    "Processes"
-                }
-                a href="/management" {
-                    (icon!("fa6-solid:user"))
-                    "Management"
-                }
-                a href="/terminal" {
-                    (icon!("fa6-solid:terminal"))
-                    "Terminal"
-                }
+            a href="/system" {
+                (icon!("fa6-solid:database"))
+                "System"
+            }
+            a href="/process" {
+                (icon!("fa6-solid:microchip"))
+                "Processes"
+            }
+            a href="/management" {
+                (icon!("fa6-solid:user"))
+                "Management"
+            }
+            a href="/terminal" {
+                (icon!("fa6-solid:terminal"))
+                "Terminal"
             }
         }
     }

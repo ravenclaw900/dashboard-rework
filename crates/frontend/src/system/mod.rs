@@ -7,16 +7,14 @@ use crate::util::{send_req, Document};
 
 #[tracing::instrument(name = "system_page", skip_all)]
 pub async fn page(tx: RequestTx) -> Markup {
-    let data = send_req!(Request::System, tx);
-
     let main = html! {
         main {
             section {
                 h2 {
                     "System Statistics"
                 }
-                div hx-get="/system/htmx" hx-trigger="every 2s" {
-                    (inner(&data))
+                div ajxl-path="/system/fragment" ajxl-event=":load :finish" ajxl-debounce="2000" {
+                    (fragment(tx).await)
                 }
             }
         }
@@ -26,14 +24,9 @@ pub async fn page(tx: RequestTx) -> Markup {
     main_template(&document)
 }
 
-#[tracing::instrument(name = "system_fragment", skip_all)]
 pub async fn fragment(tx: RequestTx) -> Markup {
     let data = send_req!(Request::System, tx);
 
-    inner(&data)
-}
-
-fn inner(data: &SystemData) -> Markup {
     let pretty_ram_used = pretty_bytes_binary(data.ram.used, Some(2));
     let pretty_ram_total = pretty_bytes_binary(data.ram.total, Some(2));
 

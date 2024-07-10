@@ -7,8 +7,6 @@ license.workspace = true
 
 [dependencies]
 async-trait = "0.1.80"
-datastar.workspace = true
-futures-util = "0.3.30"
 http-body-util = "0.1.2"
 hyper.workspace = true
 hyper-tungstenite = "0.14.0"

@@ -68,18 +68,11 @@ pub fn verify_token(token: &str) -> bool {
         return false;
     }
 
-    // Unwrap is fine here because, assuming it exists, we know the slice is 8 bytes long
-    let Some(claims_nbf) = claims
-        .get(0..8)
-        .map(|x| u64::from_be_bytes(x.try_into().unwrap()))
-    else {
+    let Some(claims_nbf) = claims.first_chunk::<8>().map(|&x| u64::from_be_bytes(x)) else {
         return false;
     };
 
-    let Some(claims_exp) = claims
-        .get(8..16)
-        .map(|x| u64::from_be_bytes(x.try_into().unwrap()))
-    else {
+    let Some(claims_exp) = claims.last_chunk::<8>().map(|&x| u64::from_be_bytes(x)) else {
         return false;
     };
 

@@ -3,9 +3,7 @@ mod ext_traits;
 mod into_response;
 mod websocket;
 
-pub type HttpResponse = hyper::Response<
-    http_body_util::combinators::UnsyncBoxBody<hyper::body::Bytes, std::convert::Infallible>,
->;
+pub type HttpResponse = hyper::Response<http_body_util::Full<hyper::body::Bytes>>;
 pub type IncomingReq = hyper::Request<hyper::body::Incoming>;
 
 pub use error::ErrorResponse;

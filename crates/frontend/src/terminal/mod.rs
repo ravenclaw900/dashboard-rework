@@ -1,13 +1,16 @@
 use maud::{html, Markup};
 
 use crate::layout::main_template;
-use crate::util::Document;
+use crate::util::{script, Document};
 
 pub fn page() -> Markup {
     let main = html! {
         main {
             div id="terminal" {}
         }
+        // (script!{r#"
+        //     const term = new Terminal();
+        // "#})
     };
 
     let document = Document::new(main)
