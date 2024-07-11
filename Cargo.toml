@@ -7,6 +7,7 @@ members = [
     "crates/auth",
     "crates/hyper_ext",
     "crates/backend",
+    "crates/types",
 ]
 resolver = "2"
 
