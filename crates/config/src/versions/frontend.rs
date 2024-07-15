@@ -16,8 +16,7 @@ pub mod v1 {
         pub key_path: PathBuf,
         // Auth options
         pub enable_auth: bool,
-        pub privkey_path: PathBuf,
-        pub pubkey_path: PathBuf,
+        pub secret: String,
         pub hash: String,
         pub expiry: u32,
     }
@@ -31,8 +30,7 @@ pub mod v1 {
                 cert_path: PathBuf::new(),
                 key_path: PathBuf::new(),
                 enable_auth: false,
-                privkey_path: PathBuf::new(),
-                pubkey_path: PathBuf::new(),
+                secret: String::new(),
                 hash: String::new(),
                 expiry: 3600,
             }
@@ -50,8 +48,7 @@ pub mod v1 {
                 cert_path: value.cert.unwrap_or(default.cert_path),
                 key_path: value.key.unwrap_or(default.key_path),
                 enable_auth: value.pass.unwrap_or(default.enable_auth),
-                privkey_path: default.privkey_path,
-                pubkey_path: default.pubkey_path,
+                secret: value.secret.unwrap_or(default.secret),
                 hash: value.hash.unwrap_or(default.hash),
                 expiry: value.expiry.unwrap_or(default.expiry),
             }

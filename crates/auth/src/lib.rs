@@ -1,12 +1,11 @@
 use config::CONFIG;
 use ct_codecs::{Base64UrlSafeNoPadding, Decoder, Encoder, Hex};
-use ed25519_compact::{Noise, PublicKey, SecretKey, Signature};
-use ring::digest::{digest, SHA512};
+use ring::{digest, hmac};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 #[must_use]
 pub fn test_password(pass: &[u8]) -> bool {
-    let hashed_pass = digest(&SHA512, pass);
+    let hashed_pass = digest::digest(&digest::SHA512, pass);
     let expected_pass = Hex::decode_to_vec(&CONFIG.hash, None).unwrap();
 
     if hashed_pass.as_ref() == expected_pass {
@@ -17,8 +16,7 @@ pub fn test_password(pass: &[u8]) -> bool {
 
 #[must_use]
 pub fn create_token() -> String {
-    let key_file = std::fs::read(&CONFIG.privkey_path).expect("failed to read secret key file");
-    let key = SecretKey::from_der(&key_file).expect("failed to parse secret key");
+    let key = hmac::Key::new(hmac::HMAC_SHA256, CONFIG.secret.as_bytes());
 
     let current_time = SystemTime::now();
     let expiry_time = current_time + Duration::from_secs(CONFIG.expiry.into());
@@ -30,7 +28,7 @@ pub fn create_token() -> String {
     claims[0..8].copy_from_slice(&current_timestamp.to_be_bytes());
     claims[8..16].copy_from_slice(&expiry_timestamp.to_be_bytes());
 
-    let sig = key.sign(claims, Some(Noise::generate()));
+    let sig = hmac::sign(&key, &claims);
 
     let encoded_claims = Base64UrlSafeNoPadding::encode_to_string(claims).unwrap();
     let encoded_sig = Base64UrlSafeNoPadding::encode_to_string(sig).unwrap();
@@ -40,8 +38,7 @@ pub fn create_token() -> String {
 
 #[must_use]
 pub fn verify_token(token: &str) -> bool {
-    let key_file = std::fs::read(&CONFIG.pubkey_path).expect("failed to read public key file");
-    let key = PublicKey::from_der(&key_file).expect("failed to parse public key");
+    let key = hmac::Key::new(hmac::HMAC_SHA256, CONFIG.secret.as_bytes());
 
     // Until key is verified, anything that can fail indicates a possible bad/malformed key
     let token_parts = token.split('.').collect::<Vec<_>>();
@@ -60,11 +57,7 @@ pub fn verify_token(token: &str) -> bool {
         return false;
     };
 
-    let Ok(sig) = Signature::from_slice(&sig) else {
-        return false;
-    };
-
-    if key.verify(&claims, &sig).is_err() {
+    if hmac::verify(&key, &claims, &sig).is_err() {
         return false;
     }
 

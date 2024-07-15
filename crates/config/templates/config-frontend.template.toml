@@ -18,10 +18,8 @@ key_path = {key_path}
 # Enable password auth
 # - Default: false
 enable_auth = {enable_auth}
-# Path to ED25519 private key
-privkey_path = {privkey_path}
-# Path to ED25519 public key
-pubkey_path = {pubkey_path}
+# Random secret used to verify token
+secret = {secret}
 # SHA-512 hash of password
 hash = {hash}
 # Expiry time of login token in seconds

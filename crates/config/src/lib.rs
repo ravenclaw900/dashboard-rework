@@ -34,8 +34,7 @@ pub fn generate_config_file(config: &Config) -> String {
         key_path = config.key_path,
         cert_path = config.cert_path,
         enable_auth = config.enable_auth,
-        privkey_path = config.privkey_path,
-        pubkey_path = config.pubkey_path,
+        secret = config.secret,
         hash = config.hash,
         expiry = config.expiry
     )

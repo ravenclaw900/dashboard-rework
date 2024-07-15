@@ -11,9 +11,4 @@ workspace = true
 [dependencies]
 config = { path = "../config", features = ["frontend"] }
 ct-codecs = "1.1.1"
-ed25519-compact = { version = "2.0.4", default-features = false, features = [
-    "random",
-    "pem",
-] }
-# ring is only used for SHA-512 digest, but is used because it is already in the dependency tree
 ring = "0.17.7"

@@ -1,6 +1,6 @@
 use config::CONFIG;
 use hyper::StatusCode;
-use hyper_ext::{router, HttpResponse, IncomingReq, IntoResponse, ResponseExt};
+use hyper_ext::{router, HttpResponse, IncomingReq, IntoResponse, ResponseExt, UriExt};
 use sysdata::RequestTx;
 
 use crate::api;
@@ -25,7 +25,13 @@ pub async fn router(
 ) -> Result<HttpResponse, std::convert::Infallible> {
     tracing_middleware(&req);
 
-    if CONFIG.enable_auth {
+    let is_unprotected_route = {
+        let path = req.uri().trimmed_path();
+        // All static files and the login pages are unprotected
+        path.starts_with("/static") || path == "/login" || path == "/api/login"
+    };
+
+    if CONFIG.enable_auth && !is_unprotected_route {
         if let Some(redirect) = login_middleware(&req) {
             return Ok(redirect);
         }
