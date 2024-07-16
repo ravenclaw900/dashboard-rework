@@ -1,7 +1,5 @@
 use sysinfo::{CpuRefreshKind, Networks, ProcessRefreshKind, System};
 
-use crate::types;
-
 fn cpu(sys: &mut System) -> f32 {
     sys.refresh_cpu_specifics(CpuRefreshKind::new().with_cpu_usage());
     round_percent(sys.global_cpu_info().cpu_usage())

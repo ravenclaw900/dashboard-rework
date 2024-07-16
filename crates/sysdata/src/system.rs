@@ -4,7 +4,6 @@ use tokio::sync::{mpsc, oneshot};
 use crate::actions;
 use crate::getters;
 use crate::system_cache::{from_cache_or_init, SystemCache};
-use crate::types;
 
 pub type RequestTx = mpsc::Sender<Request>;
 

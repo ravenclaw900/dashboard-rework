@@ -11,3 +11,4 @@ serde.workspace = true
 # sysinfo = { version = "0.30.7", default-features = false }
 sysinfo = { git = "https://github.com/GuillaumeGomez/sysinfo", rev = "622cd8a", default-features = false }
 tokio.workspace = true
+types = { path = "../types" }

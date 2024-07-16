@@ -39,7 +39,7 @@ pub async fn login(req: IncomingReq) -> HttpResponse {
 #[derive(Deserialize)]
 pub struct ProcessSignalQuery {
     pid: usize,
-    signal: sysdata::types::ProcessSignal,
+    signal: types::ProcessSignal,
 }
 
 #[instrument(skip_all, err)]
