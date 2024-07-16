@@ -1,4 +1,4 @@
-use flexible_hyper_server_tls::{rustls_helpers, AcceptorBuilder};
+use flexible_hyper_server_tls::{rustls_helpers, AcceptorBuilder, HttpOrHttpsAcceptor};
 use hyper::service::service_fn;
 use std::net::{Ipv6Addr, SocketAddr};
 use std::str::FromStr;
@@ -12,6 +12,20 @@ mod middleware;
 mod routers;
 mod static_files;
 
+fn get_acceptor(listener: TcpListener) -> HttpOrHttpsAcceptor {
+    let builder = AcceptorBuilder::new(listener);
+
+    if CONFIG.enable_tls {
+        let tls_acceptor =
+            rustls_helpers::get_tlsacceptor_from_files(&CONFIG.cert_path, &CONFIG.key_path)
+                .expect("failed to read TLS files");
+
+        builder.https(tls_acceptor).build()
+    } else {
+        builder.build()
+    }
+}
+
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
     tracing_subscriber::fmt()
@@ -24,17 +38,7 @@ async fn main() {
         .await
         .expect("failed to bind to port");
 
-    let builder = AcceptorBuilder::new(listener);
-
-    let mut acceptor = if CONFIG.enable_tls {
-        let tls_acceptor =
-            rustls_helpers::get_tlsacceptor_from_files(&CONFIG.cert_path, &CONFIG.key_path)
-                .expect("failed to read TLS files");
-
-        builder.https(tls_acceptor).build()
-    } else {
-        builder.build()
-    };
+    let mut acceptor = get_acceptor(listener);
 
     let tx = sysdata::spawn_system_task();
 
