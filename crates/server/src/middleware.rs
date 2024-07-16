@@ -13,7 +13,7 @@ pub fn login_middleware(req: &IncomingReq) -> Option<HttpResponse> {
         // Login is good, no need to redirect
         None
     } else if req.headers().contains_key("Ajxl-Request") {
-        // Insert a script to do redirect if request is from ajaxl
+        // Insert a script to do redirect if request is from ajaxial
         let resp = "<script>window.location.href='/login'</script>".into_response();
         Some(resp)
     } else {
