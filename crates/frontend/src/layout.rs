@@ -27,7 +27,6 @@ pub fn main_template(doc: &Document) -> Markup {
                 script src="/static/idiomorph.js" {}
                 script src="/static/ajaxial.js" {}
                 script src="/static/ajaxial-ext.js" {}
-                script src="/static/surreal.js" {}
 
                 @for link in doc.script_links {
                     script src={"/static/" (link)} {}

@@ -22,8 +22,6 @@ static_file!(ajaxial, "vendored/ajaxial-1.0.0.js", JS_CONTENT_HEADER);
 static_file!(ajaxial_ext, "ajaxial-ext.js", JS_CONTENT_HEADER);
 // Idiomorph
 static_file!(idiomorph, "vendored/idiomorph-0.3.0.js", JS_CONTENT_HEADER);
-// Idiomorph
-static_file!(surreal, "vendored/surreal-1.3.1.js", JS_CONTENT_HEADER);
 // xterm
 static_file!(xterm, "vendored/xterm-5.3.0.js", JS_CONTENT_HEADER);
 static_file!(xterm_css, "vendored/xterm-5.3.0.css", CSS_CONTENT_HEADER);

@@ -10,7 +10,7 @@ pub fn page() -> Markup {
         }
         (script!{"
             const term = new Terminal();
-            term.open(me('#terminal'));
+            term.open(document.getElementById('terminal'));
 
             const fitAddon = new FitAddon.FitAddon();
             term.loadAddon(fitAddon);

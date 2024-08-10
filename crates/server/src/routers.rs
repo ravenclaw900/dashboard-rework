@@ -46,7 +46,6 @@ pub async fn router(
             GET "/static/ajaxial.js" => static_files::ajaxial;
             GET "/static/ajaxial-ext.js" => static_files::ajaxial_ext;
             GET "/static/idiomorph.js" => static_files::idiomorph;
-            GET "/static/surreal.js" => static_files::surreal;
             GET "/static/xterm.js" => static_files::xterm;
             GET "/static/xterm-addon-attach.js" => static_files::xterm_addon_attach;
             GET "/static/xterm-addon-fit.js" => static_files::xterm_addon_fit;
