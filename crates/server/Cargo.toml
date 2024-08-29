@@ -16,6 +16,7 @@ workspace = true
 auth = { path = "../auth" }
 config = { path = "../config", features = ["frontend"] }
 flexible-hyper-server-tls = "0.3.0"
+# flexible-hyper-server-tls = { path = "../../../flexible-hyper-server-tls" }
 frontend = { path = "../frontend" }
 futures-util = "0.3.30"
 hyper.workspace = true
