@@ -34,6 +34,10 @@ pub fn main_template(doc: &Document) -> Markup {
             }
 
             body {
+                h1 {
+                    "DietPi Dashboard"
+                }
+
                 (nav_menu())
 
                 (header())
@@ -68,9 +72,6 @@ fn footer() -> Markup {
 fn nav_menu() -> Markup {
     html! {
         nav {
-            div {
-                "DietPi Dashboard"
-            }
             a href="/system" {
                 (icon!("fa6-solid:database"))
                 "System"

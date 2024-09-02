@@ -13,31 +13,6 @@
 body {
   line-height: 1.5;
   min-height: 100vh;
-  -webkit-font-smoothing: antialiased;
-}
-
-h1,
-h2,
-h3,
-h4,
-button,
-input,
-label {
-  line-height: 1.1;
-}
-
-p,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  overflow-wrap: break-word;
-}
-
-table {
-  border-collapse: collapse;
 }
 
 input,
@@ -59,43 +34,59 @@ button {
 body {
   font-family: var(--font-sans);
   display: grid;
-  grid-template-columns: minmax(var(--size-13), 1fr) 5fr;
-  grid-template-rows: var(--size-8) 1fr var(--size-9);
-  grid-template-areas: "nav head" "nav main" "nav foot";
+  grid-template-columns: var(--size-13) auto;
+  grid-template-rows: var(--size-8) auto var(--size-9);
+  grid-template-areas:
+    "title head"
+    "nav   main"
+    "nav   foot";
+  transition: grid-template-columns 500ms;
+}
+
+h1 {
+  grid-area: title;
+
+  display: grid;
+  place-content: center;
+
+  text-wrap: nowrap;
+  overflow: hidden;
+
+  background-color: var(--dietpi-dark);
+  font-weight: var(--font-weight-regular);
+  font-size: var(--font-size-4);
 }
 
 header {
   grid-area: head;
+
   background-color: var(--dietpi-light);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-content: center;
   font-size: var(--font-size-2);
 }
 
 nav {
   grid-area: nav;
+
   background-color: var(--gray-12);
 
-  a,
-  div {
-    display: flex;
-    align-items: center;
-    height: var(--size-8);
-  }
-
-  div {
-    justify-content: center;
-    background-color: var(--dietpi-dark);
-    font-size: var(--font-size-4);
-  }
+  display: grid;
+  grid-template-columns: min-content auto;
+  grid-auto-rows: var(--size-8);
 
   a {
+    display: grid;
+    grid-column: span 2;
+    grid-template-columns: subgrid;
+    align-items: center;
+    gap: var(--size-2);
+
+    padding-inline: var(--size-2);
+
     color: var(--gray-3);
     text-decoration: none;
     font-size: var(--font-size-3);
-    gap: var(--size-2);
-    padding: var(--size-2);
 
     &:hover {
       background-color: var(--gray-9);
@@ -141,6 +132,8 @@ section {
 /* Light border, alternating row colors */
 table {
   width: 100%;
+
+  border-collapse: collapse;
 
   border: var(--gray-0) solid var(--border-size-2);
 
